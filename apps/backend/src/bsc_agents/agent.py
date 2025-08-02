@@ -103,15 +103,18 @@ async def search_knowledge_base(
         formatted_results = []
         for match in search_results.matches:  # type: ignore
             result = {
-                "content": match.metadata.get("pageContent", "No content available"),
-                "source": match.metadata.get("title", "BYU-Idaho Knowledge Base"),
+                "content": match.metadata.get("chunk_text", "No content available"),
+                "source": match.metadata.get(
+                    "document_title", "BYU-Idaho Knowledge Base"
+                ),
                 "score": float(match.score),
                 "metadata": {
                     "id": match.id,
-                    "title": match.metadata.get("title", ""),
-                    "chunk_index": match.metadata.get("chunk_index", ""),
-                    "source_id": match.metadata.get("source", ""),
-                    "timestamp": match.metadata.get("timestamp", ""),
+                    "title": match.metadata.get("document_title", ""),
+                    "category": match.metadata.get("category", ""),
+                    "chunk_number": match.metadata.get("chunk_number", ""),
+                    "document_id": match.metadata.get("document_id", ""),
+                    "document_type": match.metadata.get("document_type", ""),
                 },
             }
             formatted_results.append(result)
