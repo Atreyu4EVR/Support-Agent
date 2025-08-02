@@ -1,11 +1,8 @@
 <div align="center">
-  
-  
-  <!-- Main Title with larger, styled text -->
   <h1>
-    <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=50&duration=3000&pause=1000&color=2563EB&center=true&vCenter=true&multiline=true&width=800&height=100&lines=BSC+Support+Agent" alt="Typing SVG" />
+    The BYUI Support Agent
   </h1>
-  
+
   <!-- Enhanced badges with better spacing -->
   <p>
     <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
@@ -14,6 +11,9 @@
     <a href="https://azure.microsoft.com/"><img src="https://img.shields.io/badge/Microsoft_Azure-0089D0?style=for-the-badge&logo=microsoft-azure&logoColor=white" alt="Azure" /></a>
     <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" /></a>
   </p>
+  <!-- <p>
+    <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=20&duration=3000&pause=1000&color=2563EB&center=true&vCenter=true&multiline=true&width=900&height=80&lines=Hi%21+I%27m+the+BYUI+Support+Agent.+How+can+I+help+you+today%3F" alt="Typing SVG" />
+  </p> -->
   
 </div>
 
