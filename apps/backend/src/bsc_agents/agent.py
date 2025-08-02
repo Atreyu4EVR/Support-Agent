@@ -58,7 +58,7 @@ async def search_knowledge_base(
     try:
         # Check if Pinecone environment variables are available
         pinecone_api_key = os.getenv("PINECONE_API_KEY")
-        pinecone_index_name = os.getenv("PINECONE_INDEX_NAME", "bsc-knowledge-v3")
+        pinecone_index_name = os.getenv("PINECONE_INDEX_NAME", "bsc-supportagent-v1")
 
         if not pinecone_api_key:
             return [
@@ -123,7 +123,7 @@ async def search_knowledge_base(
                     "source": "system",
                     "score": 0.0,
                     "metadata": {
-                        "suggestion": "Visit https://byui.edu for more information"
+                        "suggestion": "Visit https://www.byui.edu for more information"
                     },
                 }
             ]
