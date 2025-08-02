@@ -24,6 +24,8 @@
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
     "docker:clean": "docker-compose down -v --rmi all",
+    "docker:restart": "docker-compose restart",
+    "docker:rebuild": "npm run docker:down && npm run docker:build && npm run docker:up",
     "azure:deploy": "./deploy-azure.sh",
     "azure:status": "az containerapp list --resource-group byui-supportagent-p --output table"
   },
