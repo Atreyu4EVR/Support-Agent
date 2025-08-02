@@ -89,12 +89,12 @@ az acr login --name $REGISTRY_NAME
 
 # Build and push backend
 echo -e "${YELLOW}📦 Building backend image...${NC}"
-docker build -t $REGISTRY_NAME.azurecr.io/bsc-agent-backend:latest ./backend
+docker build -t $REGISTRY_NAME.azurecr.io/bsc-agent-backend:latest ./apps/backend
 docker push $REGISTRY_NAME.azurecr.io/bsc-agent-backend:latest
 
 # Build and push frontend
 echo -e "${YELLOW}📦 Building frontend image...${NC}"
-docker build -t $REGISTRY_NAME.azurecr.io/bsc-agent-frontend:latest .
+docker build -t $REGISTRY_NAME.azurecr.io/bsc-agent-frontend:latest ./apps/frontend
 docker push $REGISTRY_NAME.azurecr.io/bsc-agent-frontend:latest
 
 # Deploy Container Apps

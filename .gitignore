@@ -1,3 +1,24 @@
+# Dependencies
+node_modules/
+apps/frontend/node_modules/
+apps/backend/venv/
+apps/backend/__pycache__/
+
+# Build outputs
+apps/frontend/dist/
+apps/backend/dist/
+dist/
+dist-ssr/
+
+# Environment files
+*.env
+*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+frontend.env
+
 # Logs
 logs
 *.log
@@ -7,36 +28,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-.env
+# OS files
+.DS_Store
 
 # Editor directories and files
 .cursor
 .cursor/*
-
 .idea
-.DS_Store
 
-deploy.sh
-run.sh
-
-
-# Azure Functions
-api/local.settings.json
-api/node_modules
-api/dist
-api/.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
+# Python
 __pycache__/
-
-# Python Virtual Environment
 .venv/
 venv/
 env/
@@ -48,3 +49,13 @@ ENV/
 .Python
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Azure Functions
+api/local.settings.json
+api/node_modules
+api/dist
+api/.env
+
+# Scripts
+deploy.sh
+run.sh

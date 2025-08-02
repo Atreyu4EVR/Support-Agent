@@ -75,7 +75,7 @@ def main():
     port = int(os.getenv("PORT", 3001))
 
     uvicorn.run(
-        "api_example:app",  # Use import string instead of app object for reload support
+        "api:app",  # Use import string instead of app object for reload support
         host=host,
         port=port,
         reload=True,

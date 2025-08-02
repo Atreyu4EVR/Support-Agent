@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { Bot } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
+import { MemoryDropdown } from "./components/MemoryDropdown";
 import { setTheme, getInitialTheme } from "./utils/theme";
 import Chat from "./pages/Chat";
 import Home from "./pages/Home";
@@ -30,6 +31,18 @@ const PageTransition = ({ children }: { children: React.ReactNode }) => {
 
 // Layout wrapper
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleSessionChange = () => {
+    // Force refresh of child components when session changes
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  const handleMemoryCleared = () => {
+    // Force refresh of child components when memory is cleared
+    setRefreshKey((prev) => prev + 1);
+  };
+
   return (
     <div className="h-full w-full flex flex-row bg-gray-50 dark:bg-zinc-900">
       <Sidebar />
@@ -68,31 +81,16 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
                 />
               </svg>
             </button>
-            {/* Menu icon */}
-            <button
-              className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors duration-200"
-              aria-label="Open menu"
-              title="Open menu"
-            >
-              <svg
-                className="w-5 h-5 text-gray-900 dark:text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                />
-              </svg>
-            </button>
+            {/* Memory Dropdown */}
+            <MemoryDropdown
+              onSessionChange={handleSessionChange}
+              onMemoryCleared={handleMemoryCleared}
+            />
           </div>
         </div>
         {/* Main Content Area with Transitions */}
         <div className="flex-1 overflow-y-auto">
-          <PageTransition>{children}</PageTransition>
+          <PageTransition key={refreshKey}>{children}</PageTransition>
         </div>
       </div>
     </div>

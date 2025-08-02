@@ -3,21 +3,26 @@
 # BSC Support Agent - Python Backend Startup Script
 echo "🐍 Starting BSC Support Agent Python Backend..."
 
+# Change to project root directory (assuming script is run from root)
+SCRIPT_DIR="$(dirname "$0")"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
+
 # Check if virtual environment exists
-if [ ! -d "backend/venv" ]; then
+if [ ! -d "apps/backend/venv" ]; then
     echo "📦 Creating Python virtual environment..."
-    cd backend
+    cd apps/backend
     python3 -m venv venv
-    cd ..
+    cd ../..
 fi
 
 # Activate virtual environment
 echo "🔧 Activating virtual environment..."
-source backend/venv/bin/activate
+source apps/backend/venv/bin/activate
 
 # Install dependencies
 echo "📥 Installing Python dependencies..."
-cd backend
+cd apps/backend
 pip install -r requirements.txt
 
 # Verify packages are installed
@@ -27,8 +32,16 @@ pip list | grep -E "(agents|fastapi|uvicorn)" || echo "⚠️  Some packages may
 # Check if .env file exists
 if [ ! -f ".env" ]; then
     echo "⚠️  No .env file found. Creating from template..."
-    cp .env.example .env
-    echo "📝 Please edit backend/.env with your Azure OpenAI and Pinecone credentials"
+    if [ -f ".env.example" ]; then
+        cp .env.example .env
+    else
+        echo "# BSC Support Agent Environment Variables" > .env
+        echo "AZURE_OPENAI_API_KEY=" >> .env
+        echo "AZURE_OPENAI_ENDPOINT=" >> .env
+        echo "AZURE_OPENAI_DEPLOYMENT=" >> .env
+        echo "PINECONE_API_KEY=" >> .env
+    fi
+    echo "📝 Please edit apps/backend/.env with your Azure OpenAI and Pinecone credentials"
     echo "   Required variables:"
     echo "   - AZURE_OPENAI_API_KEY"
     echo "   - AZURE_OPENAI_ENDPOINT" 
@@ -44,8 +57,5 @@ echo "🚀 Starting Python API server..."
 echo "📍 Current directory: $(pwd)"
 echo "🐍 Python version: $(python --version)"
 
-# Change to backend directory to ensure proper module imports
-cd "$(dirname "$0")/backend"
-echo "📂 Working directory: $(pwd)"
-
-python run_python_api.py
+# Run the API from the src directory
+python src/run_python_api.py
