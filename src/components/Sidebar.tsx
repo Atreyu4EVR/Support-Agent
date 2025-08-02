@@ -1,9 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { MessageCircle, HelpCircle, Home, BookOpen } from "lucide-react";
+import { MessageCircle, HelpCircle, Home } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
 
-import { getDocumentationUrl } from "../utils/documentation";
 import { AboutModal } from "./AboutModal";
 
 interface NavItem {
@@ -29,28 +28,12 @@ const topIcons: NavItem[] = [
   },
 ];
 
-const bottomIcons: NavItem[] = [
-  {
-    name: "Documentation",
-    icon: BookOpen,
-    to: getDocumentationUrl(),
-    external: !import.meta.env.PROD, // External in dev, internal in prod
-  },
-  {
-    name: "About",
-    icon: HelpCircle,
-    to: "https://github.com/BYUI-Information-Technology/BSC-Agent/blob/main/ABOUT.md",
-    external: true,
-  },
-];
-
 export function Sidebar() {
   const location = useLocation();
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   // Use static bottom icons without auth, but replace About with modal trigger
   const dynamicBottomIcons: NavItem[] = [
-    bottomIcons[0], // Documentation
     {
       name: "About",
       icon: HelpCircle,

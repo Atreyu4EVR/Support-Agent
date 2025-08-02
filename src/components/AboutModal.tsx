@@ -41,9 +41,10 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               </h3>
               <div className="mt-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  The Support Agent is an AI-powered assistant designed to help
-                  BYU-Idaho students, faculty, and staff find answers to common
-                  questions and navigate university resources.
+                  The Support Agent is an AI-powered assistant designed to by
+                  our own AI engineering team at BYU-Idaho. It is designed to
+                  help BYU-Idaho students, faculty, and staff find answers to
+                  common questions and navigate university resources.
                 </p>
 
                 <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
@@ -53,7 +54,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                     </h4>
                     <ul className="list-disc list-inside space-y-1 ml-2">
                       <li>Financial aid and scholarship information</li>
-                      <li>Registration and academic planning</li>
+                      <li>Course registration</li>
                       <li>Student housing and campus life</li>
                       <li>Parking and transportation</li>
                       <li>Campus resources and services</li>
@@ -67,7 +68,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                     <p>
                       Powered by Azure OpenAI and enhanced with
                       Retrieval-Augmented Generation (RAG) to provide accurate,
-                      up-to-date information from BYU-Idaho's knowledge base.
+                      up-to-date information.
                     </p>
                   </div>
                 </div>
