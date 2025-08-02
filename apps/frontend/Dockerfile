@@ -19,13 +19,19 @@ RUN npm run build
 # Production stage with Nginx
 FROM nginx:alpine
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
+# Install gettext for envsubst
+RUN apk add --no-cache gettext
+
+# Copy custom nginx config as template
+COPY nginx.conf /etc/nginx/nginx.conf.template
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Environment variables are handled by nginx proxy configuration
+# Create startup script
+RUN echo '#!/bin/sh' > /docker-entrypoint.d/40-envsubst-on-nginx.sh && \
+    echo 'envsubst "\$BACKEND_URL" < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf' >> /docker-entrypoint.d/40-envsubst-on-nginx.sh && \
+    chmod +x /docker-entrypoint.d/40-envsubst-on-nginx.sh
 
 # Expose port 80
 EXPOSE 80
