@@ -1,7 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Bot, User } from "lucide-react";
+import { Bot, User, Trash2, RotateCcw, MessageSquare } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { sendMessageStream } from "../services/chatService";
+import { 
+  sendMessageStream, 
+  getOrCreateSessionId, 
+  resetSessionId, 
+  clearSessionMemory,
+  getSessionHistory,
+  type SessionHistory 
+} from "../services/chatService";
 
 interface Message {
   id: number;
@@ -101,7 +108,9 @@ const Chat: React.FC = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [sessionId, setSessionId] = useState(() => getOrCreateSessionId());
+  const [showMemoryStatus, setShowMemoryStatus] = useState(false);
+  const [sessionHistory, setSessionHistory] = useState<SessionHistory | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
 
@@ -120,6 +129,56 @@ const Chat: React.FC = () => {
       }
     };
   }, []);
+
+  // Load session history on mount
+  useEffect(() => {
+    const loadSessionHistory = async () => {
+      try {
+        const history = await getSessionHistory(sessionId, 20);
+        setSessionHistory(history);
+      } catch (error) {
+        console.error("Failed to load session history:", error);
+      }
+    };
+    
+    loadSessionHistory();
+  }, [sessionId]);
+
+  // Memory management functions
+  const handleClearConversation = async () => {
+    if (window.confirm("Are you sure you want to clear this conversation? This action cannot be undone.")) {
+      try {
+        await clearSessionMemory(sessionId);
+        setMessages(initialMessages);
+        setSessionHistory(null);
+        setError(null);
+      } catch (error) {
+        setError("Failed to clear conversation memory");
+      }
+    }
+  };
+
+  const handleNewConversation = () => {
+    if (window.confirm("Start a new conversation? Current conversation will be saved but you'll get a fresh session.")) {
+      const newSessionId = resetSessionId();
+      setSessionId(newSessionId);
+      setMessages(initialMessages);
+      setSessionHistory(null);
+      setError(null);
+    }
+  };
+
+  const handleToggleMemoryStatus = async () => {
+    if (!showMemoryStatus) {
+      try {
+        const history = await getSessionHistory(sessionId, 20);
+        setSessionHistory(history);
+      } catch (error) {
+        console.error("Failed to load session history:", error);
+      }
+    }
+    setShowMemoryStatus(!showMemoryStatus);
+  };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,6 +262,79 @@ const Chat: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-zinc-900">
+      {/* Memory Status Header */}
+      <div className="flex-shrink-0 border-b border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Memory Active
+              </span>
+            </div>
+            {sessionHistory && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {sessionHistory.message_count} messages remembered
+              </span>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleToggleMemoryStatus}
+              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
+              title="View conversation history"
+            >
+              <MessageSquare className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleNewConversation}
+              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
+              title="Start new conversation"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleClearConversation}
+              className="p-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              title="Clear conversation memory"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Memory Status Panel */}
+        {showMemoryStatus && sessionHistory && (
+          <div className="border-t border-gray-200 dark:border-zinc-700 p-4 bg-gray-50 dark:bg-zinc-900">
+            <div className="max-w-2xl">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Conversation History
+              </h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                {sessionHistory.summary}
+              </p>
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {sessionHistory.history.slice(-5).map((msg, index) => (
+                  <div key={index} className="text-xs">
+                    <span className={`font-medium ${
+                      msg.role === 'user' 
+                        ? 'text-primary-600 dark:text-primary-400' 
+                        : 'text-gray-600 dark:text-gray-400'
+                    }`}>
+                      {msg.role === 'user' ? 'You' : 'Agent'}:
+                    </span>
+                    <span className="text-gray-600 dark:text-gray-400 ml-2">
+                      {msg.content.length > 100 ? `${msg.content.slice(0, 100)}...` : msg.content}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Messages Area - Takes up remaining space and scrolls */}
       <div
         ref={scrollRef}
@@ -281,6 +413,10 @@ const Chat: React.FC = () => {
         <div className="px-6 pb-4 text-xs text-primary-400 bg-yellow-50 dark:bg-zinc-800 rounded text-center mx-auto max-w-md">
           <span className="font-semibold">
             The BYUI Support Agent can make mistakes. Verify information.
+          </span>
+          <br />
+          <span className="text-gray-500 dark:text-gray-400">
+            💭 This conversation has memory - the agent remembers our chat history.
           </span>
         </div>
       </div>

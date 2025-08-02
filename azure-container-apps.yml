@@ -1,0 +1,105 @@
+# Azure Container Apps Configuration for BSC Support Agent
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bsc-agent-config
+data:
+  # Container Apps Environment Configuration
+  ENVIRONMENT_NAME: "bsc-agent-env"
+  RESOURCE_GROUP: "byui-supportagent-p"
+  LOCATION: "westus"
+  SUBSCRIPTION_ID: "834f7da6-f117-4463-8842-c12a48a4e25d"
+
+  # Application Configuration
+  BACKEND_IMAGE: "bscagentregistry.azurecr.io/bsc-agent-backend:latest"
+  FRONTEND_IMAGE: "bscagentregistry.azurecr.io/bsc-agent-frontend:latest"
+
+---
+# Backend Container App
+apiVersion: Microsoft.App/containerApps@2023-05-01
+kind: ContainerApp
+metadata:
+  name: bsc-agent-backend
+  resourceGroup: byui-supportagent-p
+spec:
+  managedEnvironmentId: /subscriptions/834f7da6-f117-4463-8842-c12a48a4e25d/resourceGroups/byui-supportagent-p/providers/Microsoft.App/managedEnvironments/bsc-agent-env
+  configuration:
+    activeRevisionsMode: Single
+    ingress:
+      external: false
+      targetPort: 3001
+      transport: http
+      allowInsecure: false
+    secrets:
+      - name: azure-openai-key
+        keyVaultUrl: "https://bsc-agent-kv.vault.azure.net/secrets/azure-openai-key"
+      - name: pinecone-api-key
+        keyVaultUrl: "https://bsc-agent-kv.vault.azure.net/secrets/pinecone-api-key"
+      - name: tavily-api-key
+        keyVaultUrl: "https://bsc-agent-kv.vault.azure.net/secrets/tavily-api-key"
+  template:
+    containers:
+      - name: backend
+        image: bscagentregistry.azurecr.io/bsc-agent-backend:latest
+        resources:
+          cpu: 1.0
+          memory: 2Gi
+        env:
+          - name: AZURE_OPENAI_API_KEY
+            secretRef: azure-openai-key
+          - name: AZURE_OPENAI_ENDPOINT
+            value: "https://byui-ai.openai.azure.com/"
+          - name: AZURE_OPENAI_DEPLOYMENT
+            value: "gpt-4o-mini"
+          - name: PINECONE_API_KEY
+            secretRef: pinecone-api-key
+          - name: PINECONE_INDEX_NAME
+            value: "bsc-agent-knowledge"
+          - name: TAVILY_API_KEY
+            secretRef: tavily-api-key
+    scale:
+      minReplicas: 1
+      maxReplicas: 10
+      rules:
+        - name: http-scaling
+          http:
+            metadata:
+              concurrentRequests: "30"
+
+---
+# Frontend Container App
+apiVersion: Microsoft.App/containerApps@2023-05-01
+kind: ContainerApp
+metadata:
+  name: bsc-agent-frontend
+  resourceGroup: byui-supportagent-p
+spec:
+  managedEnvironmentId: /subscriptions/834f7da6-f117-4463-8842-c12a48a4e25d/resourceGroups/byui-supportagent-p/providers/Microsoft.App/managedEnvironments/bsc-agent-env
+  configuration:
+    activeRevisionsMode: Single
+    ingress:
+      external: true
+      targetPort: 80
+      transport: http
+      allowInsecure: false
+      customDomains:
+        - name: "supportagent.byui.edu"
+          certificateId: "/subscriptions/834f7da6-f117-4463-8842-c12a48a4e25d/resourceGroups/byui-supportagent-p/providers/Microsoft.App/managedCertificates/supportagent-cert"
+  template:
+    containers:
+      - name: frontend
+        image: bscagentregistry.azurecr.io/bsc-agent-frontend:latest
+        resources:
+          cpu: 0.5
+          memory: 1Gi
+        env:
+          - name: BACKEND_URL
+            value: "https://bsc-agent-backend.internal.greenfield-12345678.westus.azurecontainerapps.io"
+    scale:
+      minReplicas: 1
+      maxReplicas: 5
+      rules:
+        - name: http-scaling
+          http:
+            metadata:
+              concurrentRequests: "50"

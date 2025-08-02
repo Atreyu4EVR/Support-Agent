@@ -18,7 +18,14 @@
     "start:concurrent": "concurrently \"npm run start:api\" \"npm run start:web\" --names \"API,WEB\" --prefix-colors \"blue,green\"",
     "start:api": "./start_python_backend.sh",
     "start:web": "npm run dev",
-    "install:all": "npm install"
+    "install:all": "npm install",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v --rmi all",
+    "azure:deploy": "./deploy-azure.sh",
+    "azure:status": "az containerapp list --resource-group byui-supportagent-p --output table"
   },
   "dependencies": {
     "clsx": "^2.1.1",

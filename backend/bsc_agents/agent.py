@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from dotenv import load_dotenv
 from openai import AsyncAzureOpenAI
 from agents import (
@@ -10,11 +10,13 @@ from agents import (
     OpenAIChatCompletionsModel,
     set_tracing_disabled,
     function_tool,
+    Runner,
 )
 
-# Add current directory to path to import prompt.py
+# Add current directory to path to import prompt.py and memory
 sys.path.append(os.path.dirname(__file__))
 from prompt import system_message
+from memory import get_memory_manager
 
 # Disable tracing for Azure OpenAI (avoids API key conflicts)
 set_tracing_disabled(True)
@@ -140,34 +142,95 @@ async def search_knowledge_base(
         ]
 
 
-# Create agent using Azure OpenAI with tools
-agent = Agent(
-    name="BSC Support Agent",
-    instructions=system_message,
-    model=OpenAIChatCompletionsModel(
-        model=os.getenv(
-            "AZURE_OPENAI_DEPLOYMENT", "gpt-4.1"
-        ),  # Your Azure deployment name
-        openai_client=azure_client,
-    ),
-    tools=[search_knowledge_base],  # Pass the decorated function directly
-)
+def build_conversation_context(conversation_history: List[Dict[str, Any]]) -> str:
+    """Build conversation context string from history"""
+    if not conversation_history:
+        return ""
+
+    context_lines = ["## Previous Conversation Context\n"]
+
+    for msg in conversation_history:
+        role = msg.get("role", "unknown")
+        content = msg.get("content", "")
+        timestamp = msg.get("timestamp", 0)
+
+        if role == "user":
+            context_lines.append(f"**Student Question:** {content}")
+        elif role == "assistant":
+            context_lines.append(f"**Your Previous Response:** {content}")
+
+    context_lines.append("\n---\n")
+    context_lines.append(
+        "**Important:** Use this conversation history to provide contextual, personalized responses. Reference previous questions and maintain conversation continuity.\n"
+    )
+
+    return "\n".join(context_lines)
 
 
-# Streaming function for API integration
-async def stream_message_for_api(message: str):
-    """Stream BSC Support Agent response for API integration with knowledge base tool support"""
-    from agents import Runner
+def create_agent_with_context(
+    conversation_history: Optional[List[Dict[str, Any]]] = None,
+) -> Agent:
+    """Create agent with optional conversation context"""
+    instructions = system_message
+
+    if conversation_history:
+        context = build_conversation_context(conversation_history)
+        instructions = f"{system_message}\n\n{context}"
+
+    return Agent(
+        name="BSC Support Agent",
+        instructions=instructions,
+        model=OpenAIChatCompletionsModel(
+            model=os.getenv(
+                "AZURE_OPENAI_DEPLOYMENT", "gpt-4.1"
+            ),  # Your Azure deployment name
+            openai_client=azure_client,
+        ),
+        tools=[search_knowledge_base],  # Pass the decorated function directly
+    )
+
+
+# Create default agent (without context)
+agent = create_agent_with_context()
+
+
+# Streaming function for API integration with session support
+async def stream_message_for_api(message: str, session_id: Optional[str] = None):
+    """Stream BSC Support Agent response for API integration with conversation memory support"""
     from openai.types.responses import ResponseTextDeltaEvent
 
-    # Create a runner with the agent
-    result = Runner.run_streamed(agent, message)
+    memory_manager = get_memory_manager()
+    conversation_history = []
+
+    # Get conversation context if session_id is provided
+    if session_id:
+        # Add user message to memory
+        memory_manager.add_user_message(session_id, message)
+
+        # Get conversation history (excluding the current message)
+        conversation_history = memory_manager.get_conversation_context(
+            session_id, max_messages=8
+        )
+        # Remove the last message (current user message) from context to avoid duplication
+        if conversation_history and conversation_history[-1].get("content") == message:
+            conversation_history = conversation_history[:-1]
+
+    # Create agent with conversation context
+    contextual_agent = create_agent_with_context(conversation_history)
+
+    # Create a runner with the contextual agent
+    result = Runner.run_streamed(contextual_agent, message)
+
+    # Store the response for memory
+    response_chunks = []
 
     async for event in result.stream_events():
         if event.type == "raw_response_event":
             # Real-time token streaming
             if isinstance(event.data, ResponseTextDeltaEvent) and event.data.delta:
-                yield {"type": "chunk", "content": event.data.delta}
+                content = event.data.delta
+                response_chunks.append(content)
+                yield {"type": "chunk", "content": content}
         elif event.type == "run_item_stream_event":
             # Higher-level events (tool calls, completions)
             if event.item.type == "tool_call_item":
@@ -187,32 +250,85 @@ async def stream_message_for_api(message: str):
                 "message": "📚 Retrieving information from knowledge base...",
             }
 
+    # Save assistant response to memory
+    if session_id and response_chunks:
+        full_response = "".join(response_chunks)
+        memory_manager.add_assistant_message(session_id, full_response)
+
+
+# Legacy function for backward compatibility
+async def stream_message_for_api_legacy(message: str):
+    """Legacy streaming function without session support (for backward compatibility)"""
+    async for chunk in stream_message_for_api(message, session_id=None):
+        yield chunk
+
 
 async def interactive_chat():
-    """Interactive chat loop for testing the BSC Support Agent"""
+    """Interactive chat loop for testing the BSC Support Agent with session memory"""
     print("=" * 60)
+    print("🤖 BSC Support Agent - Interactive Chat with Memory")
+    print("=" * 60)
+
+    # Create a test session ID
+    import uuid
+
+    session_id = f"test_session_{uuid.uuid4().hex[:8]}"
+    print(f"📋 Session ID: {session_id}")
+    print("💡 This session will remember our conversation context!")
+    print("📝 Type 'memory' to see conversation history")
+    print("🔄 Type 'reset' to clear conversation memory")
+    print("❌ Type 'exit', 'quit', 'bye', or 'q' to quit")
 
     while True:
         try:
             # Get user input
             user_input = input("\nYou: ").strip()
 
-            # Check for exit commands
+            # Check for special commands
             if user_input.lower() in ["exit", "quit", "bye", "q"]:
+                memory_manager = get_memory_manager()
+                session_summary = memory_manager.get_session_summary(session_id)
+                print(f"\n📊 Session Summary: {session_summary}")
                 print(
                     "\n👋 Thanks for using the BYU-Idaho Support Agent! Have a great day!"
                 )
                 break
 
+            if user_input.lower() == "memory":
+                memory_manager = get_memory_manager()
+                history = memory_manager.get_conversation_context(session_id)
+                if history:
+                    print(f"\n📚 Conversation History ({len(history)} messages):")
+                    for i, msg in enumerate(history, 1):
+                        role = msg["role"].title()
+                        content = (
+                            msg["content"][:100] + "..."
+                            if len(msg["content"]) > 100
+                            else msg["content"]
+                        )
+                        print(f"  {i}. {role}: {content}")
+                else:
+                    print("\n📚 No conversation history yet.")
+                continue
+
+            if user_input.lower() == "reset":
+                memory_manager = get_memory_manager()
+                cleared = memory_manager.clear_session(session_id)
+                if cleared:
+                    print("\n🔄 Conversation memory cleared!")
+                else:
+                    print("\n🔄 No memory to clear.")
+                continue
+
             if not user_input:
                 print("Please enter a question or type 'exit' to quit.")
                 continue
 
-            # Stream the response
+            # Stream the response with session support
             print("\nSupport Agent: ", end="", flush=True)
             response_text = ""
 
-            async for chunk in stream_message_for_api(user_input):
+            async for chunk in stream_message_for_api(user_input, session_id):
                 if chunk["type"] == "chunk":
                     print(chunk["content"], end="", flush=True)
                     response_text += chunk["content"]

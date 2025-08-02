@@ -113,7 +113,8 @@ export async function sendMessageChunked(
   message: string,
   onChunk: (content: string) => void,
   onComplete: () => void,
-  onError: (error: string) => void
+  onError: (error: string) => void,
+  sessionId?: string
 ): Promise<void> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
@@ -121,7 +122,7 @@ export async function sendMessageChunked(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, sessionId }),
     });
 
     if (!response.ok) {
@@ -188,4 +189,152 @@ export async function checkHealth(): Promise<boolean> {
     console.error("Health check failed:", error);
     return false;
   }
+}
+
+// Memory Management Functions
+
+export interface MemoryStats {
+  total_sessions: number;
+  total_messages: number;
+  average_messages_per_session: number;
+  oldest_session_age_seconds: number;
+  newest_session_age_seconds: number;
+  max_sessions: number;
+  session_timeout_hours: number;
+}
+
+export interface SessionHistory {
+  session_id: string;
+  summary: string;
+  history: Array<{
+    role: string;
+    content: string;
+    timestamp: number;
+    metadata: Record<string, any>;
+  }>;
+  message_count: number;
+}
+
+/**
+ * Get memory system statistics
+ */
+export async function getMemoryStats(): Promise<MemoryStats> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/memory/stats`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error getting memory stats:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get conversation history for a session
+ */
+export async function getSessionHistory(
+  sessionId: string,
+  maxMessages?: number
+): Promise<SessionHistory> {
+  try {
+    const url = new URL(`${API_BASE_URL}/api/memory/sessions/${sessionId}`);
+    if (maxMessages) {
+      url.searchParams.set('max_messages', maxMessages.toString());
+    }
+    
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error getting session history:", error);
+    throw error;
+  }
+}
+
+/**
+ * Clear memory for a specific session
+ */
+export async function clearSessionMemory(sessionId: string): Promise<{
+  session_id: string;
+  cleared: boolean;
+  message: string;
+}> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/memory/sessions/${sessionId}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error clearing session memory:", error);
+    throw error;
+  }
+}
+
+/**
+ * Manually trigger cleanup of expired sessions
+ */
+export async function cleanupExpiredSessions(): Promise<{
+  removed_sessions: number;
+  message: string;
+}> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/memory/cleanup`, {
+      method: "POST",
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error cleaning up sessions:", error);
+    throw error;
+  }
+}
+
+/**
+ * Generate a persistent session ID
+ */
+export function generateSessionId(userId?: string): string {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 8);
+  
+  if (userId) {
+    return `user_${userId}_${timestamp}_${random}`;
+  }
+  
+  return `session_${timestamp}_${random}`;
+}
+
+/**
+ * Get or create a persistent session ID from localStorage
+ */
+export function getOrCreateSessionId(): string {
+  const STORAGE_KEY = 'bsc_agent_session_id';
+  
+  // Check if we have an existing session ID
+  let sessionId = localStorage.getItem(STORAGE_KEY);
+  
+  if (!sessionId) {
+    // Generate a new session ID
+    sessionId = generateSessionId();
+    localStorage.setItem(STORAGE_KEY, sessionId);
+  }
+  
+  return sessionId;
+}
+
+/**
+ * Clear the current session ID and create a new one
+ */
+export function resetSessionId(): string {
+  const STORAGE_KEY = 'bsc_agent_session_id';
+  localStorage.removeItem(STORAGE_KEY);
+  return getOrCreateSessionId();
 }
