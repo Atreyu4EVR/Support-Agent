@@ -1,0 +1,14 @@
+{
+  "name": "search_knowledge_base",
+  "description": "Search the BYU-Idaho Knowledge Base for policies, procedures, and support information. Always use this tool first before trying web search.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "The search query to find relevant knowledge base articles. Use natural language or keywords."
+      }
+    },
+    "required": ["query"]
+  }
+}

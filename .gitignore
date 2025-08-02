@@ -1,0 +1,50 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+.env
+
+# Editor directories and files
+.cursor
+.cursor/*
+
+.idea
+.DS_Store
+
+deploy.sh
+run.sh
+
+
+# Azure Functions
+api/local.settings.json
+api/node_modules
+api/dist
+api/.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+__pycache__/
+
+# Python Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+.env.python
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt

@@ -1,0 +1,25 @@
+{
+  "name": "get_academic_calendar",
+  "description": "Get BYU-Idaho academic calendar information including semester dates, registration deadlines, holidays, and important academic dates.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "semester": {
+        "type": "string",
+        "enum": ["fall", "winter", "spring"],
+        "description": "The semester to get calendar information for."
+      },
+      "year": {
+        "type": "integer",
+        "description": "The year (e.g., 2025). Defaults to current year if not specified."
+      },
+      "event_type": {
+        "type": "string",
+        "enum": ["all", "registration", "holidays", "deadlines", "exams"],
+        "default": "all",
+        "description": "Type of calendar events to retrieve."
+      }
+    },
+    "required": []
+  }
+}

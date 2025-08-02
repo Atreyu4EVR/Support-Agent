@@ -1,0 +1,8 @@
+openai-agents
+openai
+azure-identity
+python-dotenv
+pinecone
+fastapi
+uvicorn
+typing

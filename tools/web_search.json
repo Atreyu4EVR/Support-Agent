@@ -1,0 +1,14 @@
+{
+  "name": "search_web",
+  "description": "Search the web for current information about BYU-Idaho. Use only when knowledge base returns no results. Returns web pages with current information.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "The search query. Include 'BYU-Idaho' or 'BYUI' for better results."
+      }
+    },
+    "required": ["query"]
+  }
+}
