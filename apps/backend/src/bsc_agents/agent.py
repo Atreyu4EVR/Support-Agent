@@ -53,7 +53,8 @@ async def search_knowledge_base(
 
     Returns:
         List of relevant documents with their content and metadata
-        Schema: category, chunk_number, chunk_text, document_id, document_title, document_type
+        Schema: chunk_text, document_title, document_id, document_type, category, 
+                chunk_id, total_chunks, extracted_urls, has_urls, content_length
     """
     try:
         # Check if Pinecone environment variables are available
@@ -102,19 +103,26 @@ async def search_knowledge_base(
         # Format results
         formatted_results = []
         for match in search_results.matches:  # type: ignore
+            # Get chunk content for content_length calculation
+            chunk_content = match.metadata.get("chunk_text", "No content available")
+            
             result = {
-                "content": match.metadata.get("chunk_text", "No content available"),
+                "content": chunk_content,
                 "source": match.metadata.get(
                     "document_title", "BYU-Idaho Knowledge Base"
                 ),
                 "score": float(match.score),
                 "metadata": {
-                    "id": match.id,
-                    "title": match.metadata.get("document_title", ""),
-                    "category": match.metadata.get("category", ""),
-                    "chunk_number": match.metadata.get("chunk_number", ""),
-                    "document_id": match.metadata.get("document_id", ""),
-                    "document_type": match.metadata.get("document_type", ""),
+                    "chunk_text": chunk_content,                                    # Main text content
+                    "document_title": match.metadata.get("document_title", ""),     # Document title
+                    "document_id": match.metadata.get("document_id", ""),           # Document identifier  
+                    "document_type": match.metadata.get("document_type", "knowledge_article"),  # Type of document
+                    "category": match.metadata.get("category", "Unknown Category"), # Document category
+                    "chunk_id": match.metadata.get("chunk_id", match.id),          # Chunk identifier
+                    "total_chunks": match.metadata.get("total_chunks", 1),         # Total chunks in document
+                    "extracted_urls": match.metadata.get("extracted_urls", []),    # URLs to show to end-user
+                    "has_urls": match.metadata.get("has_urls", False),             # Whether chunk has URLs
+                    "content_length": match.metadata.get("content_length", len(chunk_content)),  # Content length
                 },
             }
             formatted_results.append(result)
