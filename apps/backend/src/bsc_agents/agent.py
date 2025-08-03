@@ -37,6 +37,111 @@ azure_client = AsyncAzureOpenAI(
 set_default_openai_client(azure_client)
 
 
+# Initialize portals and resources lookup function
+@function_tool
+async def lookup_portals_and_resources(
+    query: str = "", category: str = ""
+) -> List[Dict[str, Any]]:
+    """
+    Look up BYU-Idaho portals, URLs, and digital resources to help students access
+    university services, academic tools, and information systems.
+
+    Args:
+        query: Optional search term to filter portals by name, purpose, or keywords
+        category: Optional category filter (academic, student_services, communication, 
+                 directories, campus_services, religious_services, employee_services, 
+                 admissions, general)
+
+    Returns:
+        List of relevant portals with their URLs, descriptions, and key features
+    """
+    try:
+        # Load portals data from JSON file
+        portals_file_path = os.path.join(
+            os.path.dirname(__file__), "tools", "portals.json"
+        )
+        
+        with open(portals_file_path, "r", encoding="utf-8") as f:
+            portals_data = json.load(f)
+        
+        # Extract all portals from all categories
+        all_portals = []
+        categories = portals_data.get("portals", {}).get("categories", {})
+        
+        for cat_name, cat_data in categories.items():
+            if category and cat_name != category:
+                continue  # Skip if specific category is requested and this isn't it
+                
+            portals_list = cat_data.get("portals", [])
+            for portal in portals_list:
+                # Add category info to each portal
+                portal_with_category = portal.copy()
+                portal_with_category["category_name"] = cat_name
+                portal_with_category["category_description"] = cat_data.get("description", "")
+                all_portals.append(portal_with_category)
+        
+        # Filter portals based on query if provided
+        if query:
+            query_lower = query.lower()
+            filtered_portals = []
+            
+            for portal in all_portals:
+                # Check if query matches in various fields
+                matches = (
+                    query_lower in portal.get("name", "").lower() or
+                    query_lower in portal.get("purpose", "").lower() or
+                    any(query_lower in keyword.lower() for keyword in portal.get("keywords", [])) or
+                    any(query_lower in alias.lower() for alias in portal.get("aliases", []))
+                )
+                if matches:
+                    filtered_portals.append(portal)
+            
+            all_portals = filtered_portals
+        
+        # Format results for the agent
+        formatted_results = []
+        for portal in all_portals:
+            result = {
+                "name": portal.get("name", ""),
+                "url": portal.get("url", ""),
+                "purpose": portal.get("purpose", ""),
+                "category": portal.get("category_name", ""),
+                "users": portal.get("users", []),
+                "keywords": portal.get("keywords", []),
+                "aliases": portal.get("aliases", []),
+                "key_features": portal.get("key_features", [])
+            }
+            formatted_results.append(result)
+        
+        # If no portals found, return helpful message
+        if not formatted_results:
+            return [{
+                "name": "No portals found",
+                "url": "https://www.byui.edu",
+                "purpose": f"No portals match your search criteria. Visit the main BYU-Idaho website for general information.",
+                "category": "general",
+                "users": ["anyone"],
+                "keywords": [],
+                "aliases": [],
+                "key_features": ["Access general university information", "Find department contacts"]
+            }]
+        
+        return formatted_results
+
+    except Exception as e:
+        print(f"❌ Error loading portals data: {e}")
+        return [{
+            "name": "Error accessing portals",
+            "url": "https://www.byui.edu/contact-us",
+            "purpose": "Error loading portal information. Please contact BYU-Idaho Support Center for assistance.",
+            "category": "general",
+            "users": ["anyone"],
+            "keywords": [],
+            "aliases": [],
+            "key_features": ["Contact support for assistance"]
+        }]
+
+
 # Initialize Pinecone knowledge base search function
 @function_tool
 async def search_knowledge_base(
@@ -192,7 +297,7 @@ def create_agent_with_context(
             ),  # Your Azure deployment name
             openai_client=azure_client,
         ),
-        tools=[search_knowledge_base],  # Pass the decorated function directly
+        tools=[search_knowledge_base, lookup_portals_and_resources],  # Pass the decorated functions directly
     )
 
 
@@ -241,19 +346,28 @@ async def stream_message_for_api(message: str, session_id: Optional[str] = None)
             # Higher-level events (tool calls, completions)
             if event.item.type == "tool_call_item":
                 tool_name = getattr(event.item, "name", "knowledge_base_search")
+                if tool_name == "lookup_portals_and_resources":
+                    message = "Looking up BYU-Idaho portals and resources...\n\n"
+                else:
+                    message = "Searching BYU-Idaho knowledge base...\n\n"
                 yield {
                     "type": "tool_start",
                     "tool": tool_name,
-                    "message": f"Searching BYU-Idaho knowledge base...\n\n",
+                    "message": message,
                 }
             elif event.item.type == "message_output_item":
                 yield {"type": "complete", "final_output": "Response complete"}
         elif event.type == "function_call_event":
             # Function tool execution events
+            function_name = getattr(event, "function_name", "search_knowledge_base")
+            if function_name == "lookup_portals_and_resources":
+                message = "Looking up portal information..."
+            else:
+                message = "Retrieving information from knowledge base..."
             yield {
                 "type": "function_call",
-                "function": "search_knowledge_base",
-                "message": "Retrieving information from knowledge base...",
+                "function": function_name,
+                "message": message,
             }
 
     # Save assistant response to memory

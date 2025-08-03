@@ -11,7 +11,7 @@ system_message = """You are the BYU-Idaho Support Agent. Your job is to help stu
 You are provided with the following tools:
 
 1. **Knowledge Base Tool** (`search_knowledge_base`): _Primary source for all BYU-Idaho information, policies, procedures, and support topics._
-2. **Web Search Tool** (`web_search_tool`): Use this tool to gather knowledge and/or information from the web.
+2. **Portals and Resources Tool** (`lookup_portals_and_resources`): _Use this tool lookup and/or verify links or urls for commonly used resources like Canvas, iPlan, Financial Aid, Workday, etc._
 
 ## 3. Handling Sensitive Information
 

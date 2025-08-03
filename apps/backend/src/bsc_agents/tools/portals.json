@@ -1,0 +1,435 @@
+{
+  "portals": {
+    "description": "BYU-Idaho Student and Employee Portals Guide - Essential digital portals and resources for students, faculty, and staff",
+    "last_updated": "2024",
+    "categories": {
+      "academic": {
+        "description": "Academic planning, coursework, and learning resources",
+        "portals": [
+          {
+            "id": "canvas",
+            "name": "Canvas (I-Learn)",
+            "url": "https://byui.instructure.com/",
+            "purpose": "BYU-Idaho's primary learning management system",
+            "users": ["students", "faculty"],
+            "category": "academic",
+            "keywords": [
+              "learning",
+              "courses",
+              "assignments",
+              "grades",
+              "homework",
+              "exams",
+              "LMS"
+            ],
+            "key_features": [
+              "Access course materials, assignments, and grades",
+              "Submit homework and projects",
+              "Participate in online discussions",
+              "View course announcements and syllabus",
+              "Take online quizzes and exams"
+            ]
+          },
+          {
+            "id": "graduation_planner",
+            "name": "Graduation Planner (iPlan)",
+            "url": "https://iplan.byui.edu/",
+            "purpose": "Academic planning and degree tracking system",
+            "users": ["students"],
+            "category": "academic",
+            "keywords": [
+              "degree",
+              "planning",
+              "graduation",
+              "requirements",
+              "schedule",
+              "audit"
+            ],
+            "aliases": ["Grad Planner", "iPlan"],
+            "key_features": [
+              "Create and modify degree plans",
+              "Track graduation requirements",
+              "Plan course schedules for future semesters",
+              "Monitor progress toward degree completion",
+              "Generate graduation audits"
+            ]
+          },
+          {
+            "id": "tutoring",
+            "name": "Tutoring Services",
+            "url": "https://iplan.byui.edu/tutoring/index.html#/academicSuccess",
+            "purpose": "Request academic support and tutoring assistance",
+            "users": ["students"],
+            "category": "academic",
+            "keywords": [
+              "tutoring",
+              "academic support",
+              "help",
+              "study",
+              "assistance"
+            ],
+            "key_features": [
+              "Request one-on-one tutoring sessions",
+              "Find subject-specific tutors",
+              "Schedule tutoring appointments",
+              "Access academic success resources"
+            ]
+          }
+        ]
+      },
+      "student_services": {
+        "description": "Student information, registration, and administrative services",
+        "portals": [
+          {
+            "id": "student_portal",
+            "name": "Student Portal (myBYUI)",
+            "url": "https://my.byui.edu/dashboard",
+            "purpose": "Central hub for all student information and services",
+            "users": ["current students", "prospective students"],
+            "category": "student_services",
+            "keywords": [
+              "grades",
+              "registration",
+              "transcript",
+              "schedule",
+              "account",
+              "holds"
+            ],
+            "aliases": ["myBYUI"],
+            "key_features": [
+              "View grades, transcripts, and academic records",
+              "Register for classes and manage course schedules",
+              "Access student account information",
+              "Update personal information and emergency contacts",
+              "View holds and requirements"
+            ]
+          },
+          {
+            "id": "financial_aid",
+            "name": "Financial Aid Portal (Regent)",
+            "url": "https://byuistudentxprod.regenteducation.net/",
+            "purpose": "Manage financial aid applications, awards, and documentation",
+            "users": ["students"],
+            "category": "student_services",
+            "keywords": [
+              "financial aid",
+              "FAFSA",
+              "scholarships",
+              "awards",
+              "documents"
+            ],
+            "aliases": ["Regent"],
+            "key_features": [
+              "Submit FAFSA and financial aid applications",
+              "View financial aid awards and disbursements",
+              "Upload required financial documents",
+              "Track application status",
+              "Manage scholarship information"
+            ]
+          },
+          {
+            "id": "pay_tuition",
+            "name": "Personal Accounts (Regent)",
+            "url": "https://web.byui.edu/PersonalAccounts",
+            "purpose": "Online tuition and fee payment system",
+            "users": ["students", "parents"],
+            "category": "student_services",
+            "keywords": ["tuition", "payment", "billing", "balance", "fees"],
+            "aliases": ["Pay Tuition"],
+            "key_features": [
+              "View current balance and payment history",
+              "Make online payments via bank transfer or credit card",
+              "Set up payment plans",
+              "View detailed billing statements",
+              "Manage authorized payers"
+            ]
+          }
+        ]
+      },
+      "communication": {
+        "description": "Email and communication systems",
+        "portals": [
+          {
+            "id": "outlook_email",
+            "name": "Outlook Email (Office 365)",
+            "url": "https://outlook.office.com/owa/?realm=byui.edu",
+            "purpose": "Official BYU-Idaho email system",
+            "users": ["students", "faculty", "staff"],
+            "category": "communication",
+            "keywords": [
+              "email",
+              "outlook",
+              "office 365",
+              "calendar",
+              "onedrive"
+            ],
+            "key_features": [
+              "Send and receive official university communications",
+              "Access calendar and scheduling tools",
+              "Collaborate through shared mailboxes",
+              "Integrate with Microsoft Office suite",
+              "Store and share files through OneDrive"
+            ]
+          }
+        ]
+      },
+      "directories": {
+        "description": "Contact information and directory services",
+        "portals": [
+          {
+            "id": "general_directory",
+            "name": "Directory",
+            "url": "https://www.byui.edu/directories/",
+            "purpose": "Comprehensive directory of university contacts and resources",
+            "users": ["anyone"],
+            "category": "directories",
+            "keywords": [
+              "directory",
+              "contacts",
+              "departments",
+              "phone",
+              "address"
+            ],
+            "key_features": [
+              "Search for departments and offices",
+              "Find phone numbers and email addresses",
+              "Locate office addresses and hours",
+              "Access emergency contact information"
+            ]
+          },
+          {
+            "id": "employee_directory",
+            "name": "Employee Directory",
+            "url": "https://web.byui.edu/directory/employees/",
+            "purpose": "Directory of faculty and staff contact information",
+            "users": ["students", "employees"],
+            "category": "directories",
+            "keywords": [
+              "employee",
+              "faculty",
+              "staff",
+              "office hours",
+              "contact"
+            ],
+            "key_features": [
+              "Search by name, department, or position",
+              "Find faculty office hours and locations",
+              "Access professional contact information",
+              "View departmental organizational charts"
+            ]
+          },
+          {
+            "id": "student_directory",
+            "name": "Student Directory",
+            "url": "http://web.byui.edu/directory/students/",
+            "purpose": "Directory of current student contact information",
+            "users": ["students", "authorized university personnel"],
+            "category": "directories",
+            "keywords": ["student", "classmates", "major", "study groups"],
+            "key_features": [
+              "Find classmate contact information",
+              "Search by major, hometown, or interests",
+              "Connect with study groups and organizations",
+              "Respect privacy settings and opt-out preferences"
+            ]
+          }
+        ]
+      },
+      "campus_services": {
+        "description": "Campus facilities, parking, and event services",
+        "portals": [
+          {
+            "id": "campus_maps",
+            "name": "Campus Maps",
+            "url": "https://maps.byui.edu/",
+            "purpose": "Interactive campus navigation and building information",
+            "users": ["students", "visitors", "new campus members"],
+            "category": "campus_services",
+            "keywords": [
+              "maps",
+              "buildings",
+              "parking",
+              "navigation",
+              "locations"
+            ],
+            "key_features": [
+              "Locate buildings, parking, and facilities",
+              "Find classroom and office locations",
+              "Plan routes between campus locations",
+              "Access building hours and accessibility information",
+              "View construction updates and detours"
+            ]
+          },
+          {
+            "id": "parking_services",
+            "name": "Parking Services Portal",
+            "url": "https://byuiparkingservices.t2hosted.com/Account/Portal",
+            "purpose": "Manage parking permits and citations",
+            "users": ["students", "employees"],
+            "category": "campus_services",
+            "keywords": [
+              "parking",
+              "permits",
+              "citations",
+              "tickets",
+              "vehicles"
+            ],
+            "key_features": [
+              "Purchase and renew parking permits",
+              "View and pay parking citations",
+              "Update vehicle registration information",
+              "Request temporary parking permits",
+              "Access parking maps and regulations"
+            ]
+          },
+          {
+            "id": "ticket_office",
+            "name": "Ticket Office & Events",
+            "url": "https://www.byui.edu/ticket-office/",
+            "purpose": "Purchase tickets for campus events and activities",
+            "users": ["students", "community members"],
+            "category": "campus_services",
+            "keywords": [
+              "tickets",
+              "events",
+              "concerts",
+              "sports",
+              "activities"
+            ],
+            "key_features": [
+              "Buy tickets for concerts, plays, and sporting events",
+              "View event schedules and venues",
+              "Access season ticket packages",
+              "Find information about campus activities",
+              "Reserve group seating"
+            ]
+          }
+        ]
+      },
+      "religious_services": {
+        "description": "LDS ecclesiastical and religious services",
+        "portals": [
+          {
+            "id": "wards_stakes",
+            "name": "Wards and Stakes Information",
+            "url": "http://web.byui.edu/WardsAndStakes/UnitInfo",
+            "purpose": "Information about local ecclesiastical units and boundaries",
+            "users": ["LDS students"],
+            "category": "religious_services",
+            "keywords": [
+              "wards",
+              "stakes",
+              "LDS",
+              "church",
+              "boundaries",
+              "meetings"
+            ],
+            "key_features": [
+              "Find assigned ward or stake",
+              "View meeting times and locations",
+              "Access leadership contact information",
+              "Understand ecclesiastical boundaries",
+              "Connect with local congregations"
+            ]
+          }
+        ]
+      },
+      "employee_services": {
+        "description": "Employee-specific tools and resources",
+        "portals": [
+          {
+            "id": "workday",
+            "name": "Workday",
+            "url": "https://www.myworkday.com/byuhi/d/home.htmld",
+            "purpose": "Human resources and payroll management system",
+            "users": ["faculty", "staff"],
+            "category": "employee_services",
+            "keywords": ["payroll", "HR", "benefits", "time off", "expenses"],
+            "key_features": [
+              "View pay stubs and tax documents",
+              "Submit time-off requests",
+              "Update personal and tax information",
+              "Access benefits enrollment",
+              "Submit expense reports",
+              "View job postings and career development"
+            ]
+          }
+        ]
+      },
+      "admissions": {
+        "description": "Prospective student and admissions services",
+        "portals": [
+          {
+            "id": "application_portal",
+            "name": "Admissions Application Portal",
+            "url": "https://application.byui.edu/",
+            "purpose": "Online application system for prospective students",
+            "users": ["prospective students"],
+            "category": "admissions",
+            "keywords": [
+              "application",
+              "admission",
+              "transcripts",
+              "requirements"
+            ],
+            "key_features": [
+              "Submit application for admission",
+              "Upload required documents and transcripts",
+              "Pay application fees",
+              "Track application status",
+              "Complete prerequisite coursework verification"
+            ]
+          },
+          {
+            "id": "admissions_events",
+            "name": "Admissions Events",
+            "url": "https://admissions-events.byui.edu/",
+            "purpose": "Information and registration for prospective student events",
+            "users": ["prospective students", "families"],
+            "category": "admissions",
+            "keywords": [
+              "events",
+              "tours",
+              "recruitment",
+              "information sessions"
+            ],
+            "key_features": [
+              "Register for campus tours and information sessions",
+              "Sign up for college fairs and recruitment events",
+              "Schedule individual appointments with admissions counselors",
+              "Access virtual event options",
+              "Find event locations and parking information"
+            ]
+          }
+        ]
+      },
+      "general": {
+        "description": "General university contact and information",
+        "portals": [
+          {
+            "id": "contact_us",
+            "name": "Contact Us",
+            "url": "https://www.byui.edu/contact-us",
+            "purpose": "Central contact information and department directory",
+            "users": ["anyone"],
+            "category": "general",
+            "keywords": [
+              "contact",
+              "phone",
+              "directions",
+              "emergency",
+              "inquiries"
+            ],
+            "key_features": [
+              "Find specific department contact information",
+              "Access main university phone numbers",
+              "Get directions to campus and offices",
+              "Find emergency contact information",
+              "Submit general inquiries and feedback"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

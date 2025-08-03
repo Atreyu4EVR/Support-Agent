@@ -82,6 +82,10 @@ export function sendMessageStream(
         case "chunk":
           onChunk(chunk.content);
           break;
+        case "tool":
+          // Tool messages are informational, can be displayed or filtered
+          onChunk(chunk.content);
+          break;
         case "done":
           onComplete();
           eventSource.close();
@@ -96,6 +100,30 @@ export function sendMessageStream(
       eventSource.close();
     }
   };
+
+  // Handle specific event types for better debugging
+  eventSource.addEventListener("chunk", (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      onChunk(data.content);
+    } catch {
+      // Fallback to generic handler
+    }
+  });
+
+  eventSource.addEventListener("tool", (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      onChunk(data.content);
+    } catch {
+      // Fallback to generic handler
+    }
+  });
+
+  eventSource.addEventListener("complete", (event) => {
+    onComplete();
+    eventSource.close();
+  });
 
   eventSource.onerror = () => {
     console.error("EventSource failed");
@@ -241,9 +269,9 @@ export async function getSessionHistory(
   try {
     const url = new URL(`${API_BASE_URL}/api/memory/sessions/${sessionId}`);
     if (maxMessages) {
-      url.searchParams.set('max_messages', maxMessages.toString());
+      url.searchParams.set("max_messages", maxMessages.toString());
     }
-    
+
     const response = await fetch(url.toString());
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -264,9 +292,12 @@ export async function clearSessionMemory(sessionId: string): Promise<{
   message: string;
 }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/memory/sessions/${sessionId}`, {
-      method: "DELETE",
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/memory/sessions/${sessionId}`,
+      {
+        method: "DELETE",
+      }
+    );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -304,11 +335,11 @@ export async function cleanupExpiredSessions(): Promise<{
 export function generateSessionId(userId?: string): string {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 8);
-  
+
   if (userId) {
     return `user_${userId}_${timestamp}_${random}`;
   }
-  
+
   return `session_${timestamp}_${random}`;
 }
 
@@ -316,17 +347,17 @@ export function generateSessionId(userId?: string): string {
  * Get or create a persistent session ID from localStorage
  */
 export function getOrCreateSessionId(): string {
-  const STORAGE_KEY = 'bsc_agent_session_id';
-  
+  const STORAGE_KEY = "bsc_agent_session_id";
+
   // Check if we have an existing session ID
   let sessionId = localStorage.getItem(STORAGE_KEY);
-  
+
   if (!sessionId) {
     // Generate a new session ID
     sessionId = generateSessionId();
     localStorage.setItem(STORAGE_KEY, sessionId);
   }
-  
+
   return sessionId;
 }
 
@@ -334,7 +365,7 @@ export function getOrCreateSessionId(): string {
  * Clear the current session ID and create a new one
  */
 export function resetSessionId(): string {
-  const STORAGE_KEY = 'bsc_agent_session_id';
+  const STORAGE_KEY = "bsc_agent_session_id";
   localStorage.removeItem(STORAGE_KEY);
   return getOrCreateSessionId();
 }

@@ -7,6 +7,7 @@ Connects React frontend to Python AI agent with real-time streaming responses.
 import asyncio
 import os
 import sys
+import re
 from typing import AsyncGenerator, Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -21,6 +22,41 @@ sys.path.insert(0, current_dir)
 # Import our local BSC agent and memory manager
 from bsc_agents.agent import stream_message_for_api
 from bsc_agents.memory import get_memory_manager
+
+
+def should_flush_buffer(buffer: str, new_content: str) -> bool:
+    """
+    Intelligent buffering to prevent word concatenation.
+    Based on industry best practices from research.
+    """
+    # Always flush on sentence endings
+    if buffer.endswith(('.', '!', '?', ':', ';')):
+        return True
+    
+    # Flush on whitespace boundaries to prevent word merging
+    if new_content.startswith((' ', '\n', '\t')):
+        return True
+        
+    # Flush when we have a complete word + space
+    if ' ' in buffer and (buffer.endswith(' ') or new_content.startswith(' ')):
+        return True
+        
+    # Flush on markdown boundaries 
+    markdown_boundaries = ['**', '*', '`', '[', ']', '(', ')', '#', '\n']
+    if any(buffer.endswith(boundary) or new_content.startswith(boundary) for boundary in markdown_boundaries):
+        return True
+        
+    # Flush every ~50 characters to prevent overly long buffers
+    if len(buffer) >= 50:
+        return True
+        
+    # Flush on common contact info patterns that were getting concatenated
+    contact_patterns = [r'@\w+\.\w+', r'\d{3}-\d{3}-\d{4}', r'\(\d{3}\)']
+    if any(re.search(pattern, buffer) for pattern in contact_patterns):
+        return True
+    
+    return False
+
 
 app = FastAPI(title="BSC Support Agent API", version="1.0.0")
 
@@ -175,25 +211,69 @@ async def chat_stream_post(chat_message: ChatMessage):
 
                 session_id = f"temp_{uuid.uuid4().hex[:8]}"
 
+            event_counter = 0
+            text_buffer = ""
+            
             async for chunk in stream_message_for_api(chat_message.message, session_id):
+                event_counter += 1
+                
                 # Convert to frontend-expected format
                 if chunk["type"] == "chunk":
-                    event_data = json.dumps(
-                        {
-                            "type": "chunk",
-                            "content": chunk["content"],
-                            "timestamp": int(asyncio.get_event_loop().time() * 1000),
-                        }
-                    )
+                    # Smart buffering to prevent word splitting
+                    content = chunk["content"]
+                    text_buffer += content
+                    
+                    # Only send complete words/phrases to prevent concatenation
+                    if should_flush_buffer(text_buffer, content):
+                        event_data = json.dumps(
+                            {
+                                "type": "chunk",
+                                "content": text_buffer,
+                                "timestamp": int(asyncio.get_event_loop().time() * 1000),
+                            }
+                        )
+                        # Proper SSE format with event ID and type
+                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        text_buffer = ""
+                        
                 elif chunk["type"] == "tool_start":
+                    # Flush any remaining buffer before tool message
+                    if text_buffer.strip():
+                        event_counter += 1
+                        event_data = json.dumps(
+                            {
+                                "type": "chunk", 
+                                "content": text_buffer,
+                                "timestamp": int(asyncio.get_event_loop().time() * 1000),
+                            }
+                        )
+                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        text_buffer = ""
+                    
+                    event_counter += 1
                     event_data = json.dumps(
                         {
-                            "type": "chunk",
+                            "type": "tool",
                             "content": f"🔍 {chunk.get('message', 'Searching knowledge base...')}",
                             "timestamp": int(asyncio.get_event_loop().time() * 1000),
                         }
                     )
+                    yield f"id: {event_counter}\nevent: tool\ndata: {event_data}\n\n"
+                    
                 elif chunk["type"] == "complete":
+                    # Flush any remaining buffer
+                    if text_buffer.strip():
+                        event_counter += 1
+                        event_data = json.dumps(
+                            {
+                                "type": "chunk",
+                                "content": text_buffer,
+                                "timestamp": int(asyncio.get_event_loop().time() * 1000),
+                            }
+                        )
+                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                    
+                    event_counter += 1
                     event_data = json.dumps(
                         {
                             "type": "done",
@@ -201,12 +281,8 @@ async def chat_stream_post(chat_message: ChatMessage):
                             "timestamp": int(asyncio.get_event_loop().time() * 1000),
                         }
                     )
-                    yield f"data: {event_data}\n\n"
+                    yield f"id: {event_counter}\nevent: complete\ndata: {event_data}\n\n"
                     break
-                else:
-                    continue
-
-                yield f"data: {event_data}\n\n"
 
             # Send final completion event if not already sent
             completion_event = json.dumps(
@@ -261,25 +337,69 @@ async def chat_stream_get(
 
                 session_id = f"temp_{uuid.uuid4().hex[:8]}"
 
+            event_counter = 0
+            text_buffer = ""
+            
             async for chunk in stream_message_for_api(message, session_id):
+                event_counter += 1
+                
                 # Convert to frontend-expected format
                 if chunk["type"] == "chunk":
-                    event_data = json.dumps(
-                        {
-                            "type": "chunk",
-                            "content": chunk["content"],
-                            "timestamp": int(asyncio.get_event_loop().time() * 1000),
-                        }
-                    )
+                    # Smart buffering to prevent word splitting
+                    content = chunk["content"]
+                    text_buffer += content
+                    
+                    # Only send complete words/phrases to prevent concatenation
+                    if should_flush_buffer(text_buffer, content):
+                        event_data = json.dumps(
+                            {
+                                "type": "chunk",
+                                "content": text_buffer,
+                                "timestamp": int(asyncio.get_event_loop().time() * 1000),
+                            }
+                        )
+                        # Proper SSE format with event ID and type
+                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        text_buffer = ""
+                        
                 elif chunk["type"] == "tool_start":
+                    # Flush any remaining buffer before tool message
+                    if text_buffer.strip():
+                        event_counter += 1
+                        event_data = json.dumps(
+                            {
+                                "type": "chunk", 
+                                "content": text_buffer,
+                                "timestamp": int(asyncio.get_event_loop().time() * 1000),
+                            }
+                        )
+                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        text_buffer = ""
+                    
+                    event_counter += 1
                     event_data = json.dumps(
                         {
-                            "type": "chunk",
+                            "type": "tool",
                             "content": f"🔍 {chunk.get('message', 'Searching knowledge base...')}",
                             "timestamp": int(asyncio.get_event_loop().time() * 1000),
                         }
                     )
+                    yield f"id: {event_counter}\nevent: tool\ndata: {event_data}\n\n"
+                    
                 elif chunk["type"] == "complete":
+                    # Flush any remaining buffer
+                    if text_buffer.strip():
+                        event_counter += 1
+                        event_data = json.dumps(
+                            {
+                                "type": "chunk",
+                                "content": text_buffer,
+                                "timestamp": int(asyncio.get_event_loop().time() * 1000),
+                            }
+                        )
+                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                    
+                    event_counter += 1
                     event_data = json.dumps(
                         {
                             "type": "done",
@@ -287,12 +407,8 @@ async def chat_stream_get(
                             "timestamp": int(asyncio.get_event_loop().time() * 1000),
                         }
                     )
-                    yield f"data: {event_data}\n\n"
+                    yield f"id: {event_counter}\nevent: complete\ndata: {event_data}\n\n"
                     break
-                else:
-                    continue
-
-                yield f"data: {event_data}\n\n"
 
             # Send final completion event if not already sent
             completion_event = json.dumps(
