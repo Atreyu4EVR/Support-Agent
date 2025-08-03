@@ -26,7 +26,8 @@ app = FastAPI(title="BSC Support Agent API", version="1.0.0")
 
 # CORS configuration for frontend integration
 cors_origins = os.getenv(
-    "CORS_ORIGINS", "http://localhost:5173,http://localhost:3000"
+    "CORS_ORIGINS", 
+    "http://localhost:5173,http://localhost:3000,https://bsc-frontend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
 ).split(",")
 
 app.add_middleware(

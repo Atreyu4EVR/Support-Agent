@@ -57,6 +57,10 @@ spec:
             value: "bsc-agent-knowledge"
           - name: TAVILY_API_KEY
             secretRef: tavily-api-key
+          - name: CORS_ORIGINS
+            value: "http://localhost:5173,http://localhost:3000,https://bsc-frontend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
+          - name: PORT
+            value: "3001"
     scale:
       minReplicas: 1
       maxReplicas: 10
@@ -94,7 +98,9 @@ spec:
           memory: 1Gi
         env:
           - name: BACKEND_URL
-            value: "https://bsc-agent-backend.internal.greenfield-12345678.westus.azurecontainerapps.io"
+            value: "https://bsc-backend.internal.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
+          - name: VITE_API_URL
+            value: "https://bsc-backend.internal.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
     scale:
       minReplicas: 1
       maxReplicas: 5

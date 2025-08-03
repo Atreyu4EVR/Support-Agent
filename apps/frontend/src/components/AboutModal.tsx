@@ -37,41 +37,39 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             </div>
             <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
               <h3 className="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
-                About Support Agent
+                About
               </h3>
               <div className="mt-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  The Support Agent is an AI-powered assistant designed to by
-                  our own AI engineering team at BYU-Idaho. It is designed to
-                  help BYU-Idaho students, faculty, and staff find answers to
-                  common questions and navigate university resources.
+                  The BSC Support Agent is an AI agent developed in-house by
+                  BYU-Idaho AI Engineers to help students quickly find answers
+                  to common support questions.
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Powered by retrieval augmented generation (RAG) technology,
+                  the BSC Support Agent draws from a comprehensive knowledge
+                  base to provide accurate, grounded responses based on official
+                  BYU-Idaho information. While designed to be highly reliable,
+                  please note that AI assistants can occasionally make mistakes,
+                  so always verify important information through official
+                  channels when needed.
                 </p>
 
-                <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                      What can I help with?
-                    </h4>
-                    <ul className="list-disc list-inside space-y-1 ml-2">
-                      <li>Financial aid and scholarship information</li>
-                      <li>Course registration</li>
-                      <li>Student housing and campus life</li>
-                      <li>Parking and transportation</li>
-                      <li>Campus resources and services</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                      Technology
-                    </h4>
-                    <p>
-                      Powered by Azure OpenAI and enhanced with
-                      Retrieval-Augmented Generation (RAG) to provide accurate,
-                      up-to-date information.
-                    </p>
-                  </div>
-                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  To learn more about how BYU-Idaho is leveraging AI technology
+                  across campus, visit{" "}
+                  <a
+                    href="https://www.byui.edu/genai/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-600 dark:text-primary-400"
+                  >
+                    BYU-Idaho GenAI
+                  </a>
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Built with ❤️ by BYU-Idaho AI Engineering
+                </p>
               </div>
             </div>
           </div>

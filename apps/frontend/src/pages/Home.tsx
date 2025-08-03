@@ -11,31 +11,29 @@ const Home: React.FC = () => {
           {/* Hero Section */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-8 stagger-item">
-              <Bot className="w-16 h-16 text-primary-600 dark:text-primary-400 mr-4" />
+              <Bot className="w-12 h-12 text-primary-600 dark:text-primary-400 mr-4" />
               <div>
                 <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-                  Support Agent
+                  BSC Support Agent
                 </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
-                  AI-Powered Assistant for BYU-Idaho
-                </p>
               </div>
             </div>
 
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed stagger-item">
-              The Support Agent is an AI-powered assistant that helps you get
-              answers to your questions about BYU-Idaho. Ask the agent anything
-              from how to apply for financial aid, finding student housing,
-              getting a parking pass, and more.
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed stagger-item">
+              The BSC Support Agent is an AI agent developed in-house by
+              BYU-Idaho AI Engineers to help students quickly find answers to
+              common support questions. Whether you're wondering "How do I get
+              financial aid?", "Where do I go to get a parking permit?", or "How
+              do I change my major?", this agent is here to help.
             </p>
 
             {/* Chat Button */}
             <div className="mt-12 stagger-item">
               <Link
                 to="/chat"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
               >
-                <MessageCircle className="w-6 h-6" />
+                <MessageCircle className="w-5 h-5" />
                 Start Chatting
               </Link>
             </div>

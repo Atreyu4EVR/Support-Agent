@@ -53,7 +53,7 @@ async def search_knowledge_base(
 
     Returns:
         List of relevant documents with their content and metadata
-        Schema: pageContent, title, chunk_index, source, timestamp
+        Schema: category, chunk_number, chunk_text, document_id, document_title, document_type
     """
     try:
         # Check if Pinecone environment variables are available
@@ -250,7 +250,7 @@ async def stream_message_for_api(message: str, session_id: Optional[str] = None)
             yield {
                 "type": "function_call",
                 "function": "search_knowledge_base",
-                "message": "📚 Retrieving information from knowledge base...",
+                "message": "Retrieving information from knowledge base...",
             }
 
     # Save assistant response to memory
