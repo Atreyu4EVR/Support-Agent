@@ -16,7 +16,7 @@ export interface ChatResponse {
 }
 
 export interface StreamChunk {
-  type: "chunk" | "done" | "error";
+  type: "chunk" | "done" | "error" | "tool";
   content: string;
   timestamp: number;
 }
@@ -120,7 +120,7 @@ export function sendMessageStream(
     }
   });
 
-  eventSource.addEventListener("complete", (event) => {
+  eventSource.addEventListener("complete", () => {
     onComplete();
     eventSource.close();
   });
@@ -238,7 +238,7 @@ export interface SessionHistory {
     role: string;
     content: string;
     timestamp: number;
-    metadata: Record<string, any>;
+    metadata: Record<string, unknown>;
   }>;
   message_count: number;
 }
