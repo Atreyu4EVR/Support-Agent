@@ -115,14 +115,9 @@ async def search_knowledge_base(
                 "metadata": {
                     "chunk_text": chunk_content,                                    # Main text content
                     "document_title": match.metadata.get("document_title", ""),     # Document title
-                    "document_id": match.metadata.get("document_id", ""),           # Document identifier  
                     "document_type": match.metadata.get("document_type", "knowledge_article"),  # Type of document
                     "category": match.metadata.get("category", "Unknown Category"), # Document category
-                    "chunk_id": match.metadata.get("chunk_id", match.id),          # Chunk identifier
-                    "total_chunks": match.metadata.get("total_chunks", 1),         # Total chunks in document
                     "extracted_urls": match.metadata.get("extracted_urls", []),    # URLs to show to end-user
-                    "has_urls": match.metadata.get("has_urls", False),             # Whether chunk has URLs
-                    "content_length": match.metadata.get("content_length", len(chunk_content)),  # Content length
                 },
             }
             formatted_results.append(result)
