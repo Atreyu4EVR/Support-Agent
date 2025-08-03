@@ -93,7 +93,7 @@ spec:
           cpu: 0.5
           memory: 1Gi
         env:
-          - name: BACKEND_URL
+          - name: VITE_API_URL
             value: "https://bsc-agent-backend.internal.greenfield-12345678.westus.azurecontainerapps.io"
     scale:
       minReplicas: 1

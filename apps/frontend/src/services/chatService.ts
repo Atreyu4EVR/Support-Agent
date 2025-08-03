@@ -21,7 +21,7 @@ export interface StreamChunk {
   timestamp: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 /**
  * Send a message to the BSC Agent API (non-streaming)
