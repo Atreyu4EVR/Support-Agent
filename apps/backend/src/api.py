@@ -7,7 +7,6 @@ Connects React frontend to Python AI agent with real-time streaming responses.
 import asyncio
 import os
 import sys
-import re
 from typing import AsyncGenerator, Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -24,38 +23,79 @@ from bsc_agents.agent import stream_message_for_api
 from bsc_agents.memory import get_memory_manager
 
 
+def get_flush_content_and_remainder(buffer: str, new_content: str) -> tuple[str, str]:
+    """
+    Intelligent buffering that returns what to flush and what to keep.
+    Prevents word concatenation by flushing at proper word boundaries.
+    
+    Returns:
+        tuple: (content_to_flush, content_to_keep_in_buffer)
+    """
+    # Critical fix: If buffer doesn't end with whitespace and new_content doesn't start with whitespace,
+    # and both are alphanumeric, we have a potential concatenation issue - flush buffer with space
+    if (buffer and new_content and 
+        not buffer.endswith((' ', '\n', '\t')) and 
+        not new_content.startswith((' ', '\n', '\t')) and
+        buffer[-1].isalnum() and new_content[0].isalnum()):
+        # Add a space to prevent concatenation: "in" + "2001" -> "in " + "2001" = "in 2001"
+        return buffer + " ", new_content
+    
+    combined = buffer + new_content
+    
+    # If content is short, don't flush yet
+    if len(combined) < 20:
+        return "", combined
+    
+    # Always flush on sentence endings
+    for punct in ['. ', '! ', '? ', ': ', '; ', '.\n', '!\n', '?\n']:
+        if punct in combined:
+            idx = combined.rfind(punct)
+            if idx > 0:
+                return combined[:idx + len(punct)], combined[idx + len(punct):]
+    
+    # Flush at paragraph breaks
+    if '\n\n' in combined:
+        idx = combined.rfind('\n\n')
+        return combined[:idx + 2], combined[idx + 2:]
+    
+    # Flush at single line breaks with substantial content
+    if '\n' in combined and len(combined) > 25:
+        idx = combined.rfind('\n')
+        if idx > 15:  # Ensure we have substantial content before the break
+            return combined[:idx + 1], combined[idx + 1:]
+    
+    # Flush at word boundaries when buffer gets long
+    if len(combined) >= 40:
+        # Find the last good word boundary (space followed by letter/digit)
+        for i in range(len(combined) - 1, 15, -1):  # Work backwards from end, but keep minimum content
+            if combined[i] == ' ' and i + 1 < len(combined) and combined[i + 1].isalnum():
+                return combined[:i + 1], combined[i + 1:]
+    
+    # For very long content, flush at any space to prevent infinite buffering
+    if len(combined) >= 80:
+        last_space = combined.rfind(' ', 0, len(combined) - 5)  # Leave some content in buffer
+        if last_space > 20:
+            return combined[:last_space + 1], combined[last_space + 1:]
+    
+    # Absolute maximum - flush everything but keep a small remainder if no space found
+    if len(combined) >= 120:
+        if ' ' in combined:
+            last_space = combined.rfind(' ')
+            return combined[:last_space + 1], combined[last_space + 1:]
+        else:
+            # No spaces found, flush most content but keep some to prevent word splitting
+            return combined[:-10], combined[-10:]
+    
+    # Default: don't flush yet
+    return "", combined
+
+
 def should_flush_buffer(buffer: str, new_content: str) -> bool:
     """
-    Intelligent buffering to prevent word concatenation.
-    Based on industry best practices from research.
+    Legacy function for compatibility. Uses new smart flushing logic.
     """
-    # Always flush on sentence endings
-    if buffer.endswith(('.', '!', '?', ':', ';')):
-        return True
-    
-    # Flush on whitespace boundaries to prevent word merging
-    if new_content.startswith((' ', '\n', '\t')):
-        return True
-        
-    # Flush when we have a complete word + space
-    if ' ' in buffer and (buffer.endswith(' ') or new_content.startswith(' ')):
-        return True
-        
-    # Flush on markdown boundaries 
-    markdown_boundaries = ['**', '*', '`', '[', ']', '(', ')', '#', '\n']
-    if any(buffer.endswith(boundary) or new_content.startswith(boundary) for boundary in markdown_boundaries):
-        return True
-        
-    # Flush every ~50 characters to prevent overly long buffers
-    if len(buffer) >= 50:
-        return True
-        
-    # Flush on common contact info patterns that were getting concatenated
-    contact_patterns = [r'@\w+\.\w+', r'\d{3}-\d{3}-\d{4}', r'\(\d{3}\)']
-    if any(re.search(pattern, buffer) for pattern in contact_patterns):
-        return True
-    
-    return False
+    flush_content, _ = get_flush_content_and_remainder(buffer, new_content)
+    return len(flush_content) > 0
 
 
 app = FastAPI(title="BSC Support Agent API", version="1.0.0")
@@ -90,6 +130,7 @@ class ChatResponse(BaseModel):
         if "timestamp" not in data or data["timestamp"] is None:
             data["timestamp"] = int(asyncio.get_event_loop().time() * 1000)
         super().__init__(**data)
+
 
 
 @app.get("/api/health")
@@ -221,20 +262,21 @@ async def chat_stream_post(chat_message: ChatMessage):
                 if chunk["type"] == "chunk":
                     # Smart buffering to prevent word splitting
                     content = chunk["content"]
-                    text_buffer += content
                     
-                    # Only send complete words/phrases to prevent concatenation
-                    if should_flush_buffer(text_buffer, content):
+                    # Get what to flush and what to keep in buffer
+                    flush_content, text_buffer = get_flush_content_and_remainder(text_buffer, content)
+                    
+                    # Send the content that's ready to be flushed
+                    if flush_content:
                         event_data = json.dumps(
                             {
                                 "type": "chunk",
-                                "content": text_buffer,
+                                "content": flush_content,
                                 "timestamp": int(asyncio.get_event_loop().time() * 1000),
                             }
                         )
                         # Proper SSE format with event ID and type
                         yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
-                        text_buffer = ""
                         
                 elif chunk["type"] == "tool_start":
                     # Flush any remaining buffer before tool message
@@ -347,20 +389,21 @@ async def chat_stream_get(
                 if chunk["type"] == "chunk":
                     # Smart buffering to prevent word splitting
                     content = chunk["content"]
-                    text_buffer += content
                     
-                    # Only send complete words/phrases to prevent concatenation
-                    if should_flush_buffer(text_buffer, content):
+                    # Get what to flush and what to keep in buffer
+                    flush_content, text_buffer = get_flush_content_and_remainder(text_buffer, content)
+                    
+                    # Send the content that's ready to be flushed
+                    if flush_content:
                         event_data = json.dumps(
                             {
                                 "type": "chunk",
-                                "content": text_buffer,
+                                "content": flush_content,
                                 "timestamp": int(asyncio.get_event_loop().time() * 1000),
                             }
                         )
                         # Proper SSE format with event ID and type
                         yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
-                        text_buffer = ""
                         
                 elif chunk["type"] == "tool_start":
                     # Flush any remaining buffer before tool message
@@ -468,4 +511,4 @@ if __name__ == "__main__":
     print(f"  - Frontend should be running on {cors_origins[0]}")
     print("\nStarting server...")
 
-    uvicorn.run("api_example:app", host=host, port=port, reload=True, log_level="info")
+    uvicorn.run("api:app", host=host, port=port, reload=True, log_level="info")
