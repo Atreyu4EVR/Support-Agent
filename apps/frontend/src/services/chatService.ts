@@ -21,7 +21,8 @@ export interface StreamChunk {
   timestamp: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+// Call backend directly since both services are externally accessible
+const API_BASE_URL = "https://bsc-backend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io";
 
 /**
  * Send a message to the BSC Agent API (non-streaming)
