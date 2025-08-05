@@ -26,10 +26,24 @@ spec:
   configuration:
     activeRevisionsMode: Single
     ingress:
-      external: false
+      external: true
       targetPort: 3001
       transport: http
       allowInsecure: false
+      corsPolicy:
+        allowedOrigins:
+          - "http://localhost:5173"
+          - "http://localhost:3000"
+          - "http://localhost:80"
+          - "https://bsc-frontend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
+          - "https://supportagent.byui.edu"
+        allowedMethods:
+          - "GET"
+          - "POST"
+          - "OPTIONS"
+        allowedHeaders:
+          - "*"
+        allowCredentials: true
     secrets:
       - name: azure-openai-key
         keyVaultUrl: "https://bsc-agent-kv.vault.azure.net/secrets/azure-openai-key"
@@ -98,7 +112,7 @@ spec:
           memory: 1Gi
         env:
           - name: BACKEND_URL
-            value: "http://bsc-agent-backend:3001"
+            value: "https://bsc-agent-backend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
     scale:
       minReplicas: 1
       maxReplicas: 5
