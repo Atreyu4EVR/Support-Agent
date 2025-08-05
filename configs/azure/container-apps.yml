@@ -30,20 +30,29 @@ spec:
       targetPort: 3001
       transport: http
       allowInsecure: false
+      stickySessions:
+        affinity: "sticky"
       corsPolicy:
         allowedOrigins:
           - "http://localhost:5173"
           - "http://localhost:3000"
           - "http://localhost:80"
           - "https://bsc-frontend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
-          - ""
+          - "https://supportagent.byui.edu"
         allowedMethods:
           - "GET"
           - "POST"
           - "OPTIONS"
+          - "PUT"
+          - "DELETE"
         allowedHeaders:
           - "*"
+        exposeHeaders:
+          - "Content-Type"
+          - "Cache-Control"
+          - "X-Accel-Buffering"
         allowCredentials: true
+        maxAge: 86400
     secrets:
       - name: azure-openai-key
         keyVaultUrl: "https://bsc-agent-kv.vault.azure.net/secrets/azure-openai-key"
@@ -72,7 +81,7 @@ spec:
           - name: TAVILY_API_KEY
             secretRef: tavily-api-key
           - name: CORS_ORIGINS
-            value: "http://localhost:5173,http://localhost:3000,http://localhost:80,https://bsc-frontend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
+            value: "http://localhost:5173,http://localhost:3000,http://localhost:80,https://bsc-frontend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io,https://supportagent.byui.edu"
           - name: PORT
             value: "3001"
     scale:
@@ -112,7 +121,9 @@ spec:
           memory: 1Gi
         env:
           - name: BACKEND_URL
-            value: "https://bsc-backend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io/"
+            value: "https://bsc-backend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
+          - name: REACT_APP_API_URL
+            value: "https://bsc-backend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
     scale:
       minReplicas: 1
       maxReplicas: 5
