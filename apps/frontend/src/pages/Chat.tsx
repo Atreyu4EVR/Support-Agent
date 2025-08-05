@@ -21,14 +21,6 @@ const initialMessages: Message[] = [
   },
 ];
 
-// Helper function to process markdown text from n8n
-const processMarkdownText = (text: string): string => {
-  return text
-    .replace(/\\n/g, "\n") // Convert literal \n to actual newlines
-    .replace(/\\t/g, "\t") // Convert literal \t to actual tabs
-    .trim(); // Remove any leading/trailing whitespace
-};
-
 // Custom markdown components for better chat formatting
 const chatMarkdownComponents = {
   // Custom paragraph styling
@@ -168,21 +160,25 @@ const Chat: React.FC = () => {
       userMsg.text,
       // onChunk - append content to the streaming message
       (content: string) => {
-        // Filter out tool activity messages
-        const isToolActivity =
-          content.includes("🛠️ Using") ||
-          content.includes("📚 Found information in") ||
-          content.includes("🌐 Searched the web") ||
-          content.includes("🧮 Calculated:") ||
-          content.includes("🔍 Searching") ||
-          content.includes("⚠️ Note: No tools were used");
+        // Only filter out complete tool messages, not content that might contain tool-related words
+        const isCompleteToolMessage =
+          content.trim().startsWith("🛠️ Using") ||
+          content.trim().startsWith("📚 Found information in") ||
+          content.trim().startsWith("🌐 Searched the web") ||
+          content.trim().startsWith("🧮 Calculated:") ||
+          content.trim().startsWith("🔍 Searching") ||
+          content.trim().startsWith("⚠️ Note: No tools were used");
 
-        // Only add content that is NOT tool activity
-        if (!isToolActivity && content.trim()) {
+        // Add all content except complete tool messages
+        if (!isCompleteToolMessage && content.trim()) {
           setMessages((msgs) =>
-            msgs.map((msg) =>
-              msg.id === botMsgId ? { ...msg, text: msg.text + content } : msg
-            )
+            msgs.map((msg) => {
+              if (msg.id === botMsgId) {
+                // Simple text concatenation with our improved word boundary handling
+                return { ...msg, text: msg.text + content };
+              }
+              return msg;
+            })
           );
         }
       },
@@ -194,7 +190,6 @@ const Chat: React.FC = () => {
               ? {
                   ...msg,
                   isStreaming: false,
-                  text: processMarkdownText(msg.text),
                 }
               : msg
           )

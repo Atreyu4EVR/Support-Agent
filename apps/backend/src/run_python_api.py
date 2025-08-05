@@ -15,7 +15,10 @@ sys.path.insert(0, str(current_dir))
 # Load environment variables
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=current_dir / ".env")
+# Look for .env in the parent directory (backend/)
+backend_dir = current_dir.parent
+env_path = backend_dir / ".env"
+load_dotenv(dotenv_path=env_path)
 
 
 def check_environment():

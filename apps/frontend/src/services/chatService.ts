@@ -19,10 +19,29 @@ export interface StreamChunk {
   type: "chunk" | "done" | "error" | "tool";
   content: string;
   timestamp: number;
+  // Optional metadata for debugging concatenation issues
+  metadata?: {
+    bufferLength?: number;
+    chunkIndex?: number;
+    hasSpacing?: boolean;
+  };
 }
 
-// Call backend directly since both services are externally accessible
-const API_BASE_URL = "https://bsc-backend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io";
+// Smart API URL detection for different environments
+const API_BASE_URL = (() => {
+  const hostname = window.location.hostname;
+  const port = window.location.port;
+  
+  // Production Azure or Docker container (nginx proxy)
+  if (hostname.includes('azurecontainerapps.io') || 
+      hostname.includes('byui.edu') || 
+      (hostname === 'localhost' && port === '80')) {
+    return ''; // Use relative URL to go through nginx proxy
+  }
+  
+  // Local development
+  return import.meta.env.VITE_API_URL || "http://localhost:3001";
+})();
 
 /**
  * Send a message to the BSC Agent API (non-streaming)
@@ -102,29 +121,8 @@ export function sendMessageStream(
     }
   };
 
-  // Handle specific event types for better debugging
-  eventSource.addEventListener("chunk", (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      onChunk(data.content);
-    } catch {
-      // Fallback to generic handler
-    }
-  });
-
-  eventSource.addEventListener("tool", (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      onChunk(data.content);
-    } catch {
-      // Fallback to generic handler
-    }
-  });
-
-  eventSource.addEventListener("complete", () => {
-    onComplete();
-    eventSource.close();
-  });
+  // Note: We rely on the generic onmessage handler above for all event types
+  // since our backend sends structured data with type information
 
   eventSource.onerror = () => {
     console.error("EventSource failed");

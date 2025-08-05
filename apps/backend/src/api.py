@@ -26,67 +26,106 @@ from bsc_agents.memory import get_memory_manager
 def get_flush_content_and_remainder(buffer: str, new_content: str) -> tuple[str, str]:
     """
     Intelligent buffering that returns what to flush and what to keep.
-    Prevents word concatenation by flushing at proper word boundaries.
+    Prevents word splitting while ensuring smooth streaming.
     
     Returns:
         tuple: (content_to_flush, content_to_keep_in_buffer)
     """
-    # Critical fix: If buffer doesn't end with whitespace and new_content doesn't start with whitespace,
-    # and both are alphanumeric, we have a potential concatenation issue - flush buffer with space
-    if (buffer and new_content and 
-        not buffer.endswith((' ', '\n', '\t')) and 
-        not new_content.startswith((' ', '\n', '\t')) and
-        buffer[-1].isalnum() and new_content[0].isalnum()):
-        # Add a space to prevent concatenation: "in" + "2001" -> "in " + "2001" = "in 2001"
-        return buffer + " ", new_content
-    
     combined = buffer + new_content
     
-    # If content is short, don't flush yet
-    if len(combined) < 20:
+    # If content is very short, keep buffering
+    if len(combined) < 10:
         return "", combined
     
-    # Always flush on sentence endings
-    for punct in ['. ', '! ', '? ', ': ', '; ', '.\n', '!\n', '?\n']:
-        if punct in combined:
-            idx = combined.rfind(punct)
+    # Priority 1: Always flush on sentence endings
+    sentence_endings = ['. ', '! ', '? ', '.\n', '!\n', '?\n', '.\"', '!\"', '?\"']
+    for ending in sentence_endings:
+        if ending in combined:
+            idx = combined.rfind(ending)
             if idx > 0:
-                return combined[:idx + len(punct)], combined[idx + len(punct):]
+                return combined[:idx + len(ending)], combined[idx + len(ending):]
     
-    # Flush at paragraph breaks
+    # Priority 2: Flush at paragraph breaks
     if '\n\n' in combined:
         idx = combined.rfind('\n\n')
         return combined[:idx + 2], combined[idx + 2:]
     
-    # Flush at single line breaks with substantial content
+    # Priority 3: Flush at punctuation that typically ends phrases
+    phrase_endings = [', ', ': ', '; ', ' - ', ' — ']
+    if len(combined) >= 30:
+        for ending in phrase_endings:
+            if ending in combined:
+                idx = combined.rfind(ending)
+                if idx > 15:  # Ensure we have substantial content before
+                    return combined[:idx + len(ending)], combined[idx + len(ending):]
+    
+    # Priority 4: Flush at line breaks with substantial content
     if '\n' in combined and len(combined) > 25:
         idx = combined.rfind('\n')
-        if idx > 15:  # Ensure we have substantial content before the break
+        if idx > 15:
             return combined[:idx + 1], combined[idx + 1:]
     
-    # Flush at word boundaries when buffer gets long
-    if len(combined) >= 40:
-        # Find the last good word boundary (space followed by letter/digit)
-        for i in range(len(combined) - 1, 15, -1):  # Work backwards from end, but keep minimum content
-            if combined[i] == ' ' and i + 1 < len(combined) and combined[i + 1].isalnum():
+    # Priority 5: Smart word boundary detection when buffer gets long
+    if len(combined) >= 50:
+        # Look for the last complete word boundary
+        # A word boundary is a space that's not inside a hyphenated word or number
+        for i in range(len(combined) - 1, 20, -1):
+            if combined[i] == ' ':
+                # Check if this is a good place to break
+                # Don't break if we're in the middle of:
+                # - A number (e.g., "1 000" or "3.14 159")
+                # - A hyphenated word (e.g., "BYU-Idaho")
+                # - An apostrophe word (e.g., "Idaho's")
+                
+                # Look ahead and behind to ensure we're at a real word boundary
+                before_space = combined[:i]
+                after_space = combined[i+1:] if i+1 < len(combined) else ""
+                
+                # Don't split if the character before space is a digit and after is a digit
+                if (before_space and before_space[-1].isdigit() and 
+                    after_space and after_space[0].isdigit()):
+                    continue
+                
+                # Don't split if we're right after a hyphen or apostrophe
+                if before_space and before_space[-1] in "-'":
+                    continue
+                
+                # Don't split if we're right before a hyphen or apostrophe
+                if after_space and len(after_space) > 1 and after_space[0] in "-'":
+                    continue
+                
+                # This looks like a good word boundary
                 return combined[:i + 1], combined[i + 1:]
     
-    # For very long content, flush at any space to prevent infinite buffering
-    if len(combined) >= 80:
-        last_space = combined.rfind(' ', 0, len(combined) - 5)  # Leave some content in buffer
-        if last_space > 20:
-            return combined[:last_space + 1], combined[last_space + 1:]
+    # Priority 6: For very long content, find any reasonable break point
+    if len(combined) >= 100:
+        # Try to find any space that's not breaking a word
+        last_good_space = -1
+        for i in range(len(combined) - 1, 30, -1):
+            if combined[i] == ' ':
+                # Basic check: not breaking a number or hyphenated word
+                if i > 0 and combined[i-1] not in "-'0123456789":
+                    last_good_space = i
+                    break
+        
+        if last_good_space > 0:
+            return combined[:last_good_space + 1], combined[last_good_space + 1:]
     
-    # Absolute maximum - flush everything but keep a small remainder if no space found
-    if len(combined) >= 120:
-        if ' ' in combined:
-            last_space = combined.rfind(' ')
+    # Priority 7: Emergency flush - buffer is too large
+    if len(combined) >= 150:
+        # As a last resort, find ANY space
+        last_space = combined.rfind(' ')
+        if last_space > 50:
             return combined[:last_space + 1], combined[last_space + 1:]
         else:
-            # No spaces found, flush most content but keep some to prevent word splitting
-            return combined[:-10], combined[-10:]
+            # No good break point found, flush most of it but keep some context
+            # Try to at least not break in the middle of a word
+            flush_point = 140
+            while flush_point < len(combined) and combined[flush_point].isalnum():
+                flush_point += 1
+            return combined[:flush_point], combined[flush_point:]
     
-    # Default: don't flush yet
+    # Default: keep buffering
     return "", combined
 
 
@@ -103,7 +142,7 @@ app = FastAPI(title="BSC Support Agent API", version="1.0.0")
 # CORS configuration for frontend integration
 cors_origins = os.getenv(
     "CORS_ORIGINS", 
-    "http://localhost:5173,http://localhost:3000,https://bsc-frontend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
+    "http://localhost:5173,http://localhost:3000,http://localhost:80,https://bsc-frontend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io"
 ).split(",")
 
 app.add_middleware(
@@ -276,7 +315,7 @@ async def chat_stream_post(chat_message: ChatMessage):
                             }
                         )
                         # Proper SSE format with event ID and type
-                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        yield f"id: {event_counter}\ndata: {event_data}\n\n"
                         
                 elif chunk["type"] == "tool_start":
                     # Flush any remaining buffer before tool message
@@ -289,7 +328,7 @@ async def chat_stream_post(chat_message: ChatMessage):
                                 "timestamp": int(asyncio.get_event_loop().time() * 1000),
                             }
                         )
-                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        yield f"id: {event_counter}\ndata: {event_data}\n\n"
                         text_buffer = ""
                     
                     event_counter += 1
@@ -300,7 +339,7 @@ async def chat_stream_post(chat_message: ChatMessage):
                             "timestamp": int(asyncio.get_event_loop().time() * 1000),
                         }
                     )
-                    yield f"id: {event_counter}\nevent: tool\ndata: {event_data}\n\n"
+                    yield f"id: {event_counter}\ndata: {event_data}\n\n"
                     
                 elif chunk["type"] == "complete":
                     # Flush any remaining buffer
@@ -313,7 +352,7 @@ async def chat_stream_post(chat_message: ChatMessage):
                                 "timestamp": int(asyncio.get_event_loop().time() * 1000),
                             }
                         )
-                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        yield f"id: {event_counter}\ndata: {event_data}\n\n"
                     
                     event_counter += 1
                     event_data = json.dumps(
@@ -323,7 +362,7 @@ async def chat_stream_post(chat_message: ChatMessage):
                             "timestamp": int(asyncio.get_event_loop().time() * 1000),
                         }
                     )
-                    yield f"id: {event_counter}\nevent: complete\ndata: {event_data}\n\n"
+                    yield f"id: {event_counter}\ndata: {event_data}\n\n"
                     break
 
             # Send final completion event if not already sent
@@ -403,7 +442,7 @@ async def chat_stream_get(
                             }
                         )
                         # Proper SSE format with event ID and type
-                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        yield f"id: {event_counter}\ndata: {event_data}\n\n"
                         
                 elif chunk["type"] == "tool_start":
                     # Flush any remaining buffer before tool message
@@ -416,7 +455,7 @@ async def chat_stream_get(
                                 "timestamp": int(asyncio.get_event_loop().time() * 1000),
                             }
                         )
-                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        yield f"id: {event_counter}\ndata: {event_data}\n\n"
                         text_buffer = ""
                     
                     event_counter += 1
@@ -427,7 +466,7 @@ async def chat_stream_get(
                             "timestamp": int(asyncio.get_event_loop().time() * 1000),
                         }
                     )
-                    yield f"id: {event_counter}\nevent: tool\ndata: {event_data}\n\n"
+                    yield f"id: {event_counter}\ndata: {event_data}\n\n"
                     
                 elif chunk["type"] == "complete":
                     # Flush any remaining buffer
@@ -440,7 +479,7 @@ async def chat_stream_get(
                                 "timestamp": int(asyncio.get_event_loop().time() * 1000),
                             }
                         )
-                        yield f"id: {event_counter}\nevent: chunk\ndata: {event_data}\n\n"
+                        yield f"id: {event_counter}\ndata: {event_data}\n\n"
                     
                     event_counter += 1
                     event_data = json.dumps(
@@ -450,7 +489,7 @@ async def chat_stream_get(
                             "timestamp": int(asyncio.get_event_loop().time() * 1000),
                         }
                     )
-                    yield f"id: {event_counter}\nevent: complete\ndata: {event_data}\n\n"
+                    yield f"id: {event_counter}\ndata: {event_data}\n\n"
                     break
 
             # Send final completion event if not already sent
