@@ -6,6 +6,8 @@ services:
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
     ports:
       - "3001:3001"
     # Environment variables loaded from backend/.env file
@@ -28,6 +30,8 @@ services:
     build:
       context: ../../apps/frontend
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
     ports:
       - "80:80"
     environment:
