@@ -96,6 +96,11 @@ export function sendMessageStream(
 
   eventSource.onmessage = (event) => {
     try {
+      // Add debugging for development
+      if (import.meta.env.DEV) {
+        console.log('SSE Event received:', event.data);
+      }
+      
       const chunk: StreamChunk = JSON.parse(event.data);
 
       switch (chunk.type) {
@@ -114,8 +119,12 @@ export function sendMessageStream(
           onError(chunk.content);
           eventSource.close();
           break;
+        default:
+          console.warn('Unknown chunk type:', chunk.type);
+          break;
       }
-    } catch {
+    } catch (parseError) {
+      console.error('Failed to parse SSE data:', event.data, parseError);
       onError("Failed to parse response");
       eventSource.close();
     }
@@ -124,9 +133,20 @@ export function sendMessageStream(
   // Note: We rely on the generic onmessage handler above for all event types
   // since our backend sends structured data with type information
 
-  eventSource.onerror = () => {
-    console.error("EventSource failed");
-    onError("Connection to server failed");
+  eventSource.onerror = (error) => {
+    console.error("EventSource failed:", error);
+    console.error("EventSource readyState:", eventSource.readyState);
+    console.error("EventSource URL:", eventSource.url);
+    
+    // More specific error messages
+    if (eventSource.readyState === EventSource.CONNECTING) {
+      onError("Connecting to server...");
+    } else if (eventSource.readyState === EventSource.CLOSED) {
+      onError("Connection to server was closed");
+    } else {
+      onError("Connection to server failed");
+    }
+    
     eventSource.close();
   };
 

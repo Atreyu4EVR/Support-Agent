@@ -174,8 +174,26 @@ const Chat: React.FC = () => {
           setMessages((msgs) =>
             msgs.map((msg) => {
               if (msg.id === botMsgId) {
-                // Simple text concatenation with our improved word boundary handling
-                return { ...msg, text: msg.text + content };
+                // Intelligent text concatenation with proper spacing
+                const currentText = msg.text;
+                let newText = currentText + content;
+                
+                // Ensure proper spacing between words if needed
+                // Check if we need a space between the last character and new content
+                if (currentText.length > 0 && 
+                    !currentText.endsWith(' ') && 
+                    !currentText.endsWith('\n') && 
+                    !content.startsWith(' ') && 
+                    !content.startsWith('\n') &&
+                    /[a-zA-Z0-9]/.test(currentText.slice(-1)) &&
+                    /[a-zA-Z0-9]/.test(content[0])) {
+                  // Only add space if we're joining two words
+                  newText = currentText + ' ' + content;
+                } else {
+                  newText = currentText + content;
+                }
+                
+                return { ...msg, text: newText };
               }
               return msg;
             })
