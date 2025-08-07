@@ -71,7 +71,7 @@
 
 @layer components {
   .chat-header {
-    @apply border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between shadow-sm bg-white dark:bg-gray-800;
+    @apply border-b border-gray-200 dark:border-zinc-700 px-3 md:px-4 py-2 md:py-3 flex items-center justify-between shadow-sm bg-white dark:bg-zinc-900;
     transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }
 }
@@ -242,6 +242,38 @@ select:focus {
 }
 .stagger-item:nth-child(5) {
   animation-delay: 0.5s;
+}
+
+/* Mobile-specific utilities */
+@media (max-width: 767px) {
+  /* Ensure touch targets are at least 44px for better mobile usability */
+  button,
+  a,
+  input[type="submit"],
+  input[type="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Prevent zoom on input focus on mobile Safari */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* Optimize scroll behavior on mobile */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Improve text readability on small screens */
+  .chat-message {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
 }
 
 /* Reduced motion for accessibility */

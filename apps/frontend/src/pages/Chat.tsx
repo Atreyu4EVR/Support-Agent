@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Bot, User } from "lucide-react";
+import { Bot, User, SendHorizontal } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import {
   sendMessageStream,
@@ -177,22 +177,24 @@ const Chat: React.FC = () => {
                 // Intelligent text concatenation with proper spacing
                 const currentText = msg.text;
                 let newText = currentText + content;
-                
+
                 // Ensure proper spacing between words if needed
                 // Check if we need a space between the last character and new content
-                if (currentText.length > 0 && 
-                    !currentText.endsWith(' ') && 
-                    !currentText.endsWith('\n') && 
-                    !content.startsWith(' ') && 
-                    !content.startsWith('\n') &&
-                    /[a-zA-Z0-9]/.test(currentText.slice(-1)) &&
-                    /[a-zA-Z0-9]/.test(content[0])) {
+                if (
+                  currentText.length > 0 &&
+                  !currentText.endsWith(" ") &&
+                  !currentText.endsWith("\n") &&
+                  !content.startsWith(" ") &&
+                  !content.startsWith("\n") &&
+                  /[a-zA-Z0-9]/.test(currentText.slice(-1)) &&
+                  /[a-zA-Z0-9]/.test(content[0])
+                ) {
                   // Only add space if we're joining two words
-                  newText = currentText + ' ' + content;
+                  newText = currentText + " " + content;
                 } else {
                   newText = currentText + content;
                 }
-                
+
                 return { ...msg, text: newText };
               }
               return msg;
@@ -232,7 +234,7 @@ const Chat: React.FC = () => {
       {/* Messages Area - Takes up remaining space and scrolls */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-8 space-y-4 bg-gray-50 dark:bg-zinc-900"
+        className="flex-1 overflow-y-auto px-2 md:px-4 py-4 md:py-8 space-y-3 md:space-y-4 bg-gray-50 dark:bg-zinc-900"
       >
         {messages.map((msg) => (
           <div
@@ -250,7 +252,7 @@ const Chat: React.FC = () => {
                     }`}
                   />
                 </span>
-                <div className="bg-primary-100 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 rounded-2xl rounded-bl-none px-4 py-2 max-w-[40vw] shadow">
+                <div className="bg-primary-100 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 rounded-2xl rounded-bl-none px-3 md:px-4 py-2 max-w-[85vw] md:max-w-[60vw] lg:max-w-[40vw] shadow">
                   <div className="chat-message break-words">
                     <ReactMarkdown components={chatMarkdownComponents}>
                       {msg.text}
@@ -267,7 +269,7 @@ const Chat: React.FC = () => {
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-700">
                   <User className="w-5 h-5 text-gray-600 dark:text-gray-200" />
                 </span>
-                <div className="bg-primary-500 text-white rounded-2xl rounded-br-none px-4 py-2 max-w-[40vw] shadow leading-relaxed">
+                <div className="bg-primary-500 text-white rounded-2xl rounded-br-none px-3 md:px-4 py-2 max-w-[85vw] md:max-w-[60vw] lg:max-w-[40vw] shadow leading-relaxed">
                   {msg.text}
                 </div>
               </div>
@@ -286,26 +288,29 @@ const Chat: React.FC = () => {
       <div className="flex-shrink-0 border-t border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
         <form
           onSubmit={handleSend}
-          className="flex items-center gap-2 px-6 py-4"
+          className="flex items-end gap-2 px-3 md:px-6 py-3 md:py-4"
         >
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-colors duration-200"
+            className="flex-1 px-3 md:px-4 py-2 md:py-3 rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-colors duration-200 min-h-[2.5rem]"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={!input.trim() || loading}
-            className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-primary-500 hover:bg-primary-600 text-white px-3 md:px-6 py-2 md:py-3 rounded-lg text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[2.5rem] flex items-center justify-center"
+            aria-label="Send message"
           >
-            Send
+            {/* Show icon on mobile, text on desktop */}
+            <SendHorizontal className="w-5 h-5 md:hidden" />
+            <span className="hidden md:inline">Send</span>
           </button>
         </form>
-        <div className="px-6 pb-4 text-xs text-primary-400 bg-yellow-50 dark:bg-zinc-800 rounded text-center mx-auto max-w-md">
-          <span className="font-semibold">
+        <div className="px-3 md:px-6 pb-3 md:pb-4 text-xs text-gray-500 dark:text-gray-400 text-center mx-auto max-w-md">
+          <span className="font-medium">
             The BYUI Support Agent can make mistakes. Verify information.
           </span>
         </div>

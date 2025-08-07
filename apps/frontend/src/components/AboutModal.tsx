@@ -35,7 +35,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900 sm:mx-0 sm:h-10 sm:w-10">
               <Bot className="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </div>
-            <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+            <div className="mt-3 text-center sm:ml-4 sm:mr-6 sm:mt-0 sm:text-left w-full">
               <h3 className="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
                 About
               </h3>
@@ -49,22 +49,19 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                   Powered by retrieval augmented generation (RAG) technology,
                   the BSC Support Agent draws from a comprehensive knowledge
                   base to provide accurate, grounded responses based on official
-                  BYU-Idaho information. While designed to be highly reliable,
-                  please note that AI assistants can occasionally make mistakes,
-                  so always verify important information through official
-                  channels when needed.
+                  knowledge sources.
                 </p>
 
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   To learn more about how BYU-Idaho is leveraging AI technology
-                  across campus, visit{" "}
+                  across campus, visit the{" "}
                   <a
                     href="https://www.byui.edu/genai/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary-600 dark:text-primary-400"
                   >
-                    BYU-Idaho GenAI
+                    BYU-Idaho GenAI page.
                   </a>
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -76,7 +73,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
 
           {/* Footer with links */}
           <div className="mt-6 sm:mt-6 sm:flex sm:flex-row-reverse">
-            <div className="flex space-x-3">
+            <div className="flex items-center space-x-3">
               <a
                 href="https://github.com/BYUI-Information-Technology/BSC-Agent"
                 target="_blank"
@@ -89,7 +86,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               </a>
               <button
                 type="button"
-                className="inline-flex justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+                className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
                 onClick={onClose}
               >
                 Close

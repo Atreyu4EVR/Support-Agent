@@ -17,13 +17,7 @@ const PageTransition = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   return (
-    <div
-      key={location.pathname}
-      className="page-transition-enter h-full"
-      style={{
-        animation: "fadeSlideIn 0.3s ease-out forwards",
-      }}
-    >
+    <div key={location.pathname} className="page-transition-enter h-full">
       {children}
     </div>
   );
@@ -46,19 +40,25 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="h-full w-full flex flex-row bg-gray-50 dark:bg-zinc-900">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex-1 flex flex-col min-h-0 w-full md:w-auto">
         {/* Header */}
-        <div className="chat-header bg-gray-50 dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700 shadow-sm">
-          <div className="flex items-center">
+        <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b border-gray-200 dark:border-zinc-700 shadow-sm bg-white dark:bg-zinc-900">
+          {/* Left space for mobile hamburger (invisible on desktop) */}
+          <div className="w-14 md:w-0 flex-shrink-0"></div>
+
+          {/* Center: Logo and title */}
+          <div className="flex items-center justify-center flex-1 md:flex-none md:justify-start">
             <Bot className="w-6 h-6 text-primary-500 mr-2" />
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white truncate">
               BYUI Support Agent
             </h1>
           </div>
-          <div className="flex items-center space-x-2">
+
+          {/* Right: Controls */}
+          <div className="flex items-center space-x-1 md:space-x-2 flex-shrink-0">
             {/* Theme toggle icon */}
             <button
-              className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors duration-200"
+              className="p-1.5 md:p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors duration-200"
               aria-label="Toggle theme"
               title="Toggle theme"
               onClick={() => {
@@ -68,7 +68,7 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
               }}
             >
               <svg
-                className="w-5 h-5 text-gray-900 dark:text-white"
+                className="w-4 h-4 md:w-5 md:h-5 text-gray-900 dark:text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
