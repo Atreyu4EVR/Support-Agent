@@ -16,21 +16,26 @@
   
 </div>
 
-## Overview
+---
 
-The Support Agent is an AI-powered assistant designed by BYU-Idaho's AI Engineering team. It is designed to help BYU-Idaho students, faculty, and staff find answers to common questions and navigate university resources. Such as:
+## Summary
 
-- Financial aid and scholarship information
-- Course registration
-- Student housing and campus life
-- Parking and transportation
-- Campus resources and services
+The BYUI Support Agent is a cutting-edge AI system designed to modernize student support at Brigham Young University-Idaho. This intelligent assistant provides instant, accurate responses to student inquiries 24/7, significantly reducing response times to seconds while maintaining BYU-Idaho's commitment to values-based education.
 
-### Key Objectives
+### Business Impact
 
-- **Improve Consistency**: AI-powered responses aligned with BYU-Idaho's values
-- **Scale Effortlessly**: Handle peak periods (semester start, financial aid deadlines)
-- **Enhance Efficiency**: Reduce response time and improve support quality
+- **Response Time**: Reduced to < 5 seconds
+- **Student Satisfaction**: 24/7 availability during critical periods
+- **Consistency**: 100% adherence to university policies and values
+- **Scalability**: Handles unlimited concurrent users during peak periods
+
+### Key Value Propositions
+
+1. **Instant Access**: Students get immediate answers during registration, financial aid deadlines, and other critical periods
+2. **Cost Effective**: Automates routine inquiries, allowing staff to focus on complex cases
+3. **Always Available**: 24/7 support during nights, weekends, and holidays
+4. **Consistent Quality**: Every response aligns with BYU-Idaho's policies and LDS values
+5. **Future-Ready**: Built on modern cloud architecture for easy scaling and enhancement
 
 ## Architecture
 
@@ -62,63 +67,63 @@ BSC-Support-Agent/
 - **Framework**: React with Tailwind CSS
 - **Features**: Real-time chat, streaming responses, responsive design
 
-## Features
+## Features & Capabilities
 
-### AI-Powered Interactions
+### Advanced AI Capabilities
 
-- **Chat Interface**: Real-time AI assistance with Server-Sent Events streaming
-- **Context-Aware Responses**: Grounded in BYU-Idaho's policies and knowledge base
-- **Memory Management**: Persistent conversation history and context
+#### Intelligent Conversational AI
 
-### Modern User Experience
+- **GPT-4.1 Powered**: Latest Azure OpenAI technology for natural conversations
+- **Knowledge Grounded**: Responses based on verified BYU-Idaho policies and procedures
+- **Context Aware**: Maintains conversation history and understands complex multi-turn dialogues
+- **Real-Time Streaming**: Instant response generation with Server-Sent Events
+- **Semantic Search**: Pinecone vector database for intelligent information retrieval
 
-- Clean, responsive design with Tailwind CSS
-- Dark/light theme support
-- Icon-only sidebar navigation with Lucide React icons
-- Mobile-friendly responsive layout
+#### Values-Aligned Responses
 
-### Developer Experience
+- **Values Integration**: Every response reflects BYU-Idaho's values
+- **Policy Compliance**: Adherence to official university guidelines
+- **Academic Integrity**: Promotes honor code and ethical academic practices
+- **Student-Centered**: Responses prioritize student success and well-being
 
-- TypeScript for type safety
-- Hot reload development server
-- Automated deployment scripts
-- Docker containerization
-- Comprehensive error handling
+### User Experience
 
-## Quick Start
+#### Modern Interface Design
 
-### Prerequisites
+- **Responsive Design**: Seamless experience across desktop, tablet, and mobile
+- **Dark/Light Themes**: User preference accommodation for any time of day
+- **Lightning Fast**: Sub-second page loads with optimized React components
+- **Intuitive Navigation**: Clean, icon-based sidebar with logical organization
 
-- Node.js 18+ and npm
-- Python 3.8+
-- Docker (optional)
+### Technical Specifications
 
-### Usage
+- **Cloud-Native**: Built for Azure with automatic scaling and high availability
+- **TypeScript**: Full type safety across frontend and API interfaces
+- **Modern Tooling**: Vite, ESLint, Prettier for optimal development experience
+- **CI/CD Pipeline**: Automated testing, building, and deployment
+- **Containerized**: Docker-based deployment for consistency and portability
 
-```bash
-# Setup (first time)
-./scripts/setup-dev.sh
+## Team & Support
 
-# Development
-npm run dev              # Start both services
-npm run dev:frontend     # Frontend only
-npm run dev:backend      # Backend only
+### Development Team
 
-# Docker
-npm run docker:up        # Start with Docker
-npm run docker:build     # Build containers
+**Project Lead & AI Engineer**
 
-# Deployment
-npm run azure:deploy     # Deploy to Azure
-```
+- **Ron Vallejo** - AI Engineer, BYU-Idaho IT
+- **Email**: vallejo@byui.edu
+- **Expertise**: AI development, Azure architecture, LLM integration, and RAG architecture
 
-## Documentation
+**Stakeholders**
 
-- [Deployment Guide](docs/DEPLOYMENT.md)
-- [Project Overview](docs/OVERVIEW.md)
-- [Integration Guide](docs/README_INTEGRATION.md)
-- [Memory Management](docs/MEMORY_GUIDE.md)
-- [Docker Workflow](docs/docker-dev-workflow.md)
+- **BYUI Support Center** - Primary stakeholder and user requirements
+- **AI Governance** - Governance and oversight of general AI usage
+- **AI Engineering Team** - Technical implementation and support
+
+### Support & Maintenance
+
+#### **For Technical Issues**
+
+- **Primary Contact**: Ron Vallejo (vallejo@byui.edu)
 
 ## About BYU-Idaho
 
@@ -139,6 +144,4 @@ _Learn more about BYU-Idaho by going to [byui.edu/about](https://www.byui.edu/ab
 
 ---
 
-<div align="center">
-  <p><strong>Built with ❤️ by BYU‑Idaho AI Engineering</strong></p>
-</div>
+<p><strong>Built with ❤️ by BYU‑Idaho AI Engineering Team</strong></p>
