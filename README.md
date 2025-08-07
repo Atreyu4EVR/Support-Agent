@@ -1,6 +1,6 @@
 <div align="center">
-  <h1 style="font-size: 4em; font-weight: bold; margin: 20px 0;">
-    The BYUI Support Agent
+  <h1 style="font-size: 6em; font-weight: bold; margin: 20px 0;">
+    BYUI Support Agent
   </h1>
   <!-- Enhanced badges with better spacing -->
   <p>
