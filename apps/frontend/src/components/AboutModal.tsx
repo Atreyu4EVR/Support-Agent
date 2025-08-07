@@ -41,9 +41,9 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               </h3>
               <div className="mt-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  The BSC Support Agent is an AI agent developed in-house by
-                  BYU-Idaho AI Engineers to help students quickly find answers
-                  to common support questions.
+                  The BYUI Support Agent is an AI agent developed in-house to
+                  help students quickly find answers to common support
+                  questions.
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   Powered by retrieval augmented generation (RAG) technology,
@@ -75,7 +75,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
           <div className="mt-6 sm:mt-6 sm:flex sm:flex-row-reverse">
             <div className="flex items-center space-x-3">
               <a
-                href="https://github.com/BYUI-Information-Technology/BSC-Agent"
+                href="https://github.com/Atreyu4EVR/Support-Agent"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-600 transition-colors"
