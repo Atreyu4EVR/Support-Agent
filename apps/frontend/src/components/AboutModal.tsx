@@ -46,10 +46,19 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                   questions.
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Powered by <strong>GPT 5</strong> and retrieval augmented
-                  generation (RAG) technology, the Support Agent draws from a
-                  comprehensive knowledge base to provide accurate, grounded
-                  responses based on official knowledge sources.
+                  Powered by{" "}
+                  <a
+                    href="https://azure.microsoft.com/en-us/blog/gpt-5-in-azure-ai-foundry-the-future-of-ai-apps-and-agents-starts-here/?msockid=0687aefa097166842a04bbf108fd6772"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                  >
+                    GPT-5
+                  </a>{" "}
+                  and retrieval augmented generation (RAG) technology, the
+                  Support Agent draws from a comprehensive knowledge base to
+                  provide accurate, grounded responses based on official
+                  knowledge sources.
                 </p>
 
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
