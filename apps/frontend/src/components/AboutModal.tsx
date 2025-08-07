@@ -46,10 +46,10 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                   questions.
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Powered by retrieval augmented generation (RAG) technology,
-                  the BSC Support Agent draws from a comprehensive knowledge
-                  base to provide accurate, grounded responses based on official
-                  knowledge sources.
+                  Powered by <strong>GPT 5</strong> and retrieval augmented
+                  generation (RAG) technology, the Support Agent draws from a
+                  comprehensive knowledge base to provide accurate, grounded
+                  responses based on official knowledge sources.
                 </p>
 
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
