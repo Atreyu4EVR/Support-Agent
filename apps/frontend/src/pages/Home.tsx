@@ -17,11 +17,20 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { AboutModal } from "../components/AboutModal";
+import { FeaturesLightning } from "../components/FeaturesLightning";
+import { FeaturesAvailability } from "../components/FeaturesAvailability";
+import { FeaturesPrivacy } from "../components/FeaturesPrivacy";
+import { FeaturesKnowledgeable } from "../components/FeaturesKnowledgeable";
 import { setTheme } from "../utils/theme";
 
 const Home: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+  const [isLightningModalOpen, setIsLightningModalOpen] = useState(false);
+  const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isKnowledgeableModalOpen, setIsKnowledgeableModalOpen] =
+    useState(false);
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark")
   );
@@ -37,24 +46,28 @@ const Home: React.FC = () => {
       icon: <Zap className="w-8 h-8" />,
       title: "Lightning Fast",
       description: "Skip the lines. Get answers streamed to you in seconds.",
+      onClick: () => setIsLightningModalOpen(true),
     },
     {
       icon: <Clock className="w-8 h-8" />,
       title: "24/7 Available",
       description:
         "Get help whenever you need it, day or night. No waiting. No phone queues.",
+      onClick: () => setIsAvailabilityModalOpen(true),
     },
     {
       icon: <Shield className="w-8 h-8" />,
       title: "Private & Secure",
       description:
         "State of the art AI coupled with absolute privacy and security.",
+      onClick: () => setIsPrivacyModalOpen(true),
     },
     {
       icon: <Brain className="w-8 h-8" />,
       title: "Knowledgeable",
       description:
         "Trained on official BYU-Idaho policies and procedures for trusted information.",
+      onClick: () => setIsKnowledgeableModalOpen(true),
     },
   ];
 
@@ -197,7 +210,10 @@ const Home: React.FC = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
                 <div key={index} className="group">
-                  <div className="h-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-3xl p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+                  <button
+                    onClick={feature.onClick}
+                    className="h-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-3xl p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 w-full text-left cursor-pointer"
+                  >
                     <div className="w-16 h-16 bg-[#006EB6] dark:bg-gradient-to-br dark:from-blue-500 dark:to-purple-600 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
                       {feature.icon}
                     </div>
@@ -207,7 +223,7 @@ const Home: React.FC = () => {
                     <p className="font-body text-gray-600 dark:text-gray-400 leading-relaxed">
                       {feature.description}
                     </p>
-                  </div>
+                  </button>
                 </div>
               ))}
             </div>
@@ -228,6 +244,24 @@ const Home: React.FC = () => {
       <AboutModal
         isOpen={isAboutModalOpen}
         onClose={() => setIsAboutModalOpen(false)}
+      />
+
+      {/* Feature Modals */}
+      <FeaturesLightning
+        isOpen={isLightningModalOpen}
+        onClose={() => setIsLightningModalOpen(false)}
+      />
+      <FeaturesAvailability
+        isOpen={isAvailabilityModalOpen}
+        onClose={() => setIsAvailabilityModalOpen(false)}
+      />
+      <FeaturesPrivacy
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+      />
+      <FeaturesKnowledgeable
+        isOpen={isKnowledgeableModalOpen}
+        onClose={() => setIsKnowledgeableModalOpen(false)}
       />
     </div>
   );

@@ -11,6 +11,9 @@ from typing import AsyncGenerator, Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 from pydantic import BaseModel
 import json
 
@@ -138,6 +141,45 @@ def should_flush_buffer(buffer: str, new_content: str) -> bool:
 
 
 app = FastAPI(title="BSC Support Agent API", version="1.0.0")
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Middleware to add security headers to all responses"""
+    
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        
+        # Add security headers
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        
+        # Content Security Policy for API responses
+        csp_policy = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+            "img-src 'self' data: https:; "
+            "font-src 'self' https:; "
+            "connect-src 'self' https://bsc-frontend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io https://bsc-backend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io wss://bsc-backend.victoriousfield-9e7b4bb6.westus.azurecontainerapps.io; "
+            "object-src 'none'; "
+            "base-uri 'self'; "
+            "form-action 'self'; "
+            "frame-ancestors 'none'; "
+            "upgrade-insecure-requests"
+        )
+        response.headers["Content-Security-Policy"] = csp_policy
+        
+        # Additional security headers
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        
+        return response
+
+
+# Add security middleware
+app.add_middleware(SecurityHeadersMiddleware)
 
 # CORS configuration for frontend integration
 cors_origins = os.getenv(

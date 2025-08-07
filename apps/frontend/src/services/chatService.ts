@@ -31,14 +31,16 @@ export interface StreamChunk {
 const API_BASE_URL = (() => {
   const hostname = window.location.hostname;
   const port = window.location.port;
-  
+
   // Production Azure or Docker container (nginx proxy)
-  if (hostname.includes('azurecontainerapps.io') || 
-      hostname.includes('byui.edu') || 
-      (hostname === 'localhost' && port === '80')) {
-    return ''; // Use relative URL to go through nginx proxy
+  if (
+    hostname.includes("azurecontainerapps.io") ||
+    hostname.includes("byui.edu") ||
+    (hostname === "localhost" && port === "80")
+  ) {
+    return ""; // Use relative URL to go through nginx proxy
   }
-  
+
   // Local development
   return import.meta.env.VITE_API_URL || "http://localhost:3001";
 })();
@@ -98,9 +100,9 @@ export function sendMessageStream(
     try {
       // Add debugging for development
       if (import.meta.env.DEV) {
-        console.log('SSE Event received:', event.data);
+        console.log("SSE Event received:", event.data);
       }
-      
+
       const chunk: StreamChunk = JSON.parse(event.data);
 
       switch (chunk.type) {
@@ -120,11 +122,11 @@ export function sendMessageStream(
           eventSource.close();
           break;
         default:
-          console.warn('Unknown chunk type:', chunk.type);
+          console.warn("Unknown chunk type:", chunk.type);
           break;
       }
     } catch (parseError) {
-      console.error('Failed to parse SSE data:', event.data, parseError);
+      console.error("Failed to parse SSE data:", event.data, parseError);
       onError("Failed to parse response");
       eventSource.close();
     }
@@ -137,7 +139,7 @@ export function sendMessageStream(
     console.error("EventSource failed:", error);
     console.error("EventSource readyState:", eventSource.readyState);
     console.error("EventSource URL:", eventSource.url);
-    
+
     // More specific error messages
     if (eventSource.readyState === EventSource.CONNECTING) {
       onError("Connecting to server...");
@@ -146,7 +148,7 @@ export function sendMessageStream(
     } else {
       onError("Connection to server failed");
     }
-    
+
     eventSource.close();
   };
 

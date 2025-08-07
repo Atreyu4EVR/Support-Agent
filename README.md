@@ -103,6 +103,34 @@ BSC-Support-Agent/
 - **CI/CD Pipeline**: Automated testing, building, and deployment
 - **Containerized**: Docker-based deployment for consistency and portability
 
+## User Experience Features
+
+### Lightning Fast Responses
+
+We've optimized the application to provide lightning fast responses to student inquiries. This is accomplished by leveraging SSE (Server-Sent Events) to stream the response token-by-token to the user as it is generated. This allows the user to see the response as it is being generated, rather than waiting for the entire response to be generated before displaying it. Streaming turns a static wait into an interactive conversation, making the interface feel faster, more transparent, and more engaging.
+
+### 24/7 Availability
+
+The BYUI Support Agent is hosted securely by Microsoft Azure, and is available 24/7, 365 days a year. The entire technical infrastructure was built cloud-first, and is designed to be highly available and scalable. This allows the application to handle multiple concurrent users during peak periods, such as registration and financial aid deadlines. This is a significant improvement over traditional support systems, dependent on human staff, are only available during normal business hours.
+
+### Private & Secure
+
+We use privately hosted OpenAI models in Microsoft Azure's cloud to power the BYUI Support Agent. This ensures that the application is private and secure, and that the student's data is not exposed to OpenAI's servers, other third-party systems, or any other unauthorized users.
+
+1. Data Persistence: Messages are stored in memory for the duration of the session. Conversations are stored in BYU-Idaho's private database for safety, monitoring, and model evaluation.
+2. Focused: The AI is constrained to the BYU-Idaho knowledge base only
+3. FERPA Protection: Built-in safeguards against sharing protected student information
+4. Communication: All data in transit is securely encrypted end-to-end via HTTPS.
+5. Security: Leverages Microsoft's enterprise-grade infrastructure
+
+### Super Intelligent
+
+The BYUI Support Agent is powered by GPT 4.1, one the latest large language models (LLMs) from OpenAI, and is designed to be super intelligent. We've added an additional layer of intelligence to GPT 4.1 by leveraging a popular technique invented by Facebook (now Meta) called [Retrieval Augmented Generation (RAG)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation) to provide the most up-to-date and relevant information to the user.
+
+In practice, this means that the Support Agent intelligently performs a "tool call" to retrieve information from its knowledge base, and then use that information to generate a response. This is a significant improvement over off-the-shelf AI tools like ChatGPT, which are not able to provide verified, curated BYU-Idaho information to the user.
+
+### Values-Aligned Responses
+
 ## Team & Support
 
 ### Development Team
