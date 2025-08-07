@@ -146,7 +146,7 @@ const Home: React.FC = () => {
             {/* Hero Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full text-sm font-headline font-medium text-gray-600 dark:text-gray-300 border border-gray-200/50 dark:border-gray-700/50 mb-8">
               <Sparkles className="w-4 h-4 text-[#006EB6] dark:text-blue-400" />
-              Powered by GPT-5 from OpenAI
+              Powered by an advanced GPT-5 model
             </div>
 
             {/* Main Hero Content */}
