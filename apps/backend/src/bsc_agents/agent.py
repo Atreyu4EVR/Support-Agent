@@ -293,7 +293,7 @@ def create_agent_with_context(
         instructions=instructions,
         model=OpenAIChatCompletionsModel(
             model=os.getenv(
-                "AZURE_OPENAI_DEPLOYMENT", "gpt-4.1"
+                "AZURE_OPENAI_DEPLOYMENT", "gpt-5"
             ),  # Your Azure deployment name
             openai_client=azure_client,
         ),
