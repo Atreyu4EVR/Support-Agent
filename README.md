@@ -1,8 +1,7 @@
 <div align="center">
-  <h1>
+  <h1 style="font-size: 4em; font-weight: bold; margin: 20px 0;">
     The BYUI Support Agent
   </h1>
-
   <!-- Enhanced badges with better spacing -->
   <p>
     <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
