@@ -25,7 +25,11 @@ const PageTransition = ({ children }: { children: React.ReactNode }) => {
 
 // Layout wrapper
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Check if we're on the homepage
+  const isHomePage = location.pathname === "/";
 
   const handleSessionChange = () => {
     // Force refresh of child components when session changes
@@ -37,6 +41,16 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
     setRefreshKey((prev) => prev + 1);
   };
 
+  // Full-screen layout for homepage
+  if (isHomePage) {
+    return (
+      <div className="h-full w-full">
+        <PageTransition key={refreshKey}>{children}</PageTransition>
+      </div>
+    );
+  }
+
+  // Standard layout with sidebar and header for other pages
   return (
     <div className="h-full w-full flex flex-row bg-gray-50 dark:bg-zinc-900">
       <Sidebar />

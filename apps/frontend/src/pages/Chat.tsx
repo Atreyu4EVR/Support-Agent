@@ -30,24 +30,24 @@ const chatMarkdownComponents = {
 
   // Custom heading styling
   h1: ({ children }: React.ComponentPropsWithoutRef<"h1">) => (
-    <h1 className="text-sm font-bold text-primary-600 dark:text-primary-400 mb-2 mt-3 first:mt-0">
+    <h1 className="text-sm font-bold text-primary-400 mb-2 mt-3 first:mt-0">
       {children}
     </h1>
   ),
   h2: ({ children }: React.ComponentPropsWithoutRef<"h2">) => (
-    <h2 className="text-sm font-bold text-primary-600 dark:text-primary-400 mb-2 mt-3 first:mt-0">
+    <h2 className="text-sm font-bold text-primary-400 mb-2 mt-3 first:mt-0">
       {children}
     </h2>
   ),
   h3: ({ children }: React.ComponentPropsWithoutRef<"h3">) => (
-    <h3 className="text-sm font-bold text-primary-600 dark:text-primary-400 mb-2 mt-3 first:mt-0">
+    <h3 className="text-sm font-bold text-primary-400 mb-2 mt-3 first:mt-0">
       {children}
     </h3>
   ),
 
   // Custom strong/bold styling
   strong: ({ children }: React.ComponentPropsWithoutRef<"strong">) => (
-    <span className="font-semibold text-gray-800 dark:text-gray-200">
+    <span className="font-semibold text-white">
       {children}
     </span>
   ),
@@ -78,14 +78,14 @@ const chatMarkdownComponents = {
 
   // Custom code styling
   code: ({ children }: React.ComponentPropsWithoutRef<"code">) => (
-    <code className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1 py-0.5 rounded text-sm font-mono">
+    <code className="bg-gray-700 text-gray-200 px-1 py-0.5 rounded text-sm font-mono">
       {children}
     </code>
   ),
 
   // Custom blockquote styling
   blockquote: ({ children }: React.ComponentPropsWithoutRef<"blockquote">) => (
-    <blockquote className="border-l-2 border-primary-300 dark:border-primary-600 pl-3 py-1 italic text-gray-600 dark:text-gray-400">
+    <blockquote className="border-l-2 border-primary-400 pl-3 py-1 italic text-gray-300">
       {children}
     </blockquote>
   ),
@@ -252,7 +252,7 @@ const Chat: React.FC = () => {
                     }`}
                   />
                 </span>
-                <div className="bg-primary-100 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 rounded-2xl rounded-bl-none px-3 md:px-4 py-2 max-w-[85vw] md:max-w-[60vw] lg:max-w-[40vw] shadow">
+                <div className="bg-zinc-800 text-gray-100 rounded-2xl rounded-bl-none px-3 md:px-4 py-2 max-w-[85vw] md:max-w-[60vw] lg:max-w-[40vw] shadow">
                   <div className="chat-message break-words">
                     <ReactMarkdown components={chatMarkdownComponents}>
                       {msg.text}
