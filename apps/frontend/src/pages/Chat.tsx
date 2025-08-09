@@ -47,9 +47,7 @@ const chatMarkdownComponents = {
 
   // Custom strong/bold styling
   strong: ({ children }: React.ComponentPropsWithoutRef<"strong">) => (
-    <span className="font-semibold text-white">
-      {children}
-    </span>
+    <span className="font-semibold text-white">{children}</span>
   ),
 
   // Custom list styling
@@ -286,28 +284,25 @@ const Chat: React.FC = () => {
 
       {/* Input Area - Fixed at bottom */}
       <div className="flex-shrink-0 border-t border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
-        <form
-          onSubmit={handleSend}
-          className="flex items-end gap-2 px-3 md:px-6 py-3 md:py-4"
-        >
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 px-3 md:px-4 py-2 md:py-3 rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-colors duration-200 min-h-[2.5rem]"
-            disabled={loading}
-          />
-          <button
-            type="submit"
-            disabled={!input.trim() || loading}
-            className="bg-primary-500 hover:bg-primary-600 text-white px-3 md:px-6 py-2 md:py-3 rounded-lg text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[2.5rem] flex items-center justify-center"
-            aria-label="Send message"
-          >
-            {/* Show icon on mobile, text on desktop */}
-            <SendHorizontal className="w-5 h-5 md:hidden" />
-            <span className="hidden md:inline">Send</span>
-          </button>
+        <form onSubmit={handleSend} className="px-3 md:px-6 py-3 md:py-4">
+          <div className="relative">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              className="w-full px-3 md:px-4 py-2 md:py-3 pr-16 rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-colors duration-200 min-h-[2.5rem]"
+              disabled={loading}
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || loading}
+              className="absolute right-2 inset-y-0 my-auto h-9 w-9 md:h-10 md:w-10 bg-primary-500 hover:bg-primary-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              aria-label="Send message"
+            >
+              <SendHorizontal className="w-4 h-4" />
+            </button>
+          </div>
         </form>
         <div className="px-3 md:px-6 pb-3 md:pb-4 text-xs text-gray-500 dark:text-gray-400 text-center mx-auto max-w-md">
           <span className="font-medium">
